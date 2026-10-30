@@ -78,6 +78,8 @@ nav.band{background:var(--card);border-bottom:1px solid var(--line)}
 @media (max-width:900px){.layout{grid-template-columns:1fr}}
 
 .tree{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:.5rem .45rem;max-height:80vh;overflow-y:auto}
+.treehint{font-size:.76rem;color:var(--ink-faint);margin:.1rem .25rem .3rem;padding:.3rem .45rem;background:var(--paper);border-radius:7px;line-height:1.35}
+.treehint strong{color:var(--ink-soft)}
 .tgroup{margin:.2rem 0 .5rem}
 .tgroup>h2{font-size:.8rem;letter-spacing:.05em;text-transform:uppercase;margin:.45rem .4rem .25rem;font-weight:700;display:flex;align-items:center;gap:.4rem}
 .tgroup>h2 .dot{width:.7rem;height:.7rem;border-radius:3px;flex:0 0 auto}
@@ -374,11 +376,15 @@ function drawTree(){
     });
     if(body) html+=`<div class="tgroup"><h2><span class="dot" style="background:${s.color}"></span>${esc(s.name)}</h2>${body}</div>`;
   });
-  $("#tree").innerHTML=html||`<p style="padding:.6rem;font-size:.88rem;color:var(--ink-soft)">No indicators match "${esc(query)}".</p>`;
+  const hint=html?`<p class="treehint">Compare: tick the boxes, or <strong>Ctrl/Cmd+click</strong> a name. Breakdown indicators (PARTS/MULTI) open on their own.</p>`:"";
+  $("#tree").innerHTML=hint+(html||`<p style="padding:.6rem;font-size:.88rem;color:var(--ink-soft)">No indicators match "${esc(query)}".</p>`);
   const where=query?"matching your search":(activeSector==="ALL"?"across all sectors":"in "+esc(activeSector));
   const cmp=isCompare()?` Comparing <strong>${sel.length}</strong>.`:"";
-  $("#status").innerHTML=`Showing <strong>${shown}</strong> indicator${shown===1?"":"s"} ${where}. Tick boxes to compare simple indicators.${cmp}`;
-  $("#tree").querySelectorAll(".iname").forEach(b=>b.addEventListener("click",()=>focusOne(b.dataset.id)));
+  $("#status").innerHTML=`Showing <strong>${shown}</strong> indicator${shown===1?"":"s"} ${where}. Tick boxes, or <strong>Ctrl/Cmd+click</strong> a name, to compare simple indicators.${cmp}`;
+  $("#tree").querySelectorAll(".iname").forEach(b=>b.addEventListener("click",e=>{
+    if((e.ctrlKey||e.metaKey)&&IND[b.dataset.id].type==="simple") toggle(b.dataset.id);
+    else focusOne(b.dataset.id);
+  }));
   $("#tree").querySelectorAll("input[data-mid]").forEach(cb=>cb.addEventListener("change",()=>toggle(cb.dataset.mid)));
 }
 
@@ -453,8 +459,11 @@ function curUnit(){const p=primary();return p?p.unit:"percent";}
 /* which sexes a selection can actually show, and whether boys-vs-girls is meaningful */
 function sexAvail(which){
   const p=primary(); if(!p) return true;
-  if(isCompare()) return true;                       // compare mode falls back per indicator
-  if(p.type==="simple") return which==="All Children" ? true : !!p.series[which];
+  if(which==="All Children") return true;
+  // compare mode: offer boys/girls only if EVERY selected indicator has that split,
+  // so a mix of sex-disaggregated and all-children-only indicators stays on all children
+  if(isCompare()) return sel.every(id=>IND[id].series && IND[id].series[which]);
+  if(p.type==="simple") return !!p.series[which];
   return p.categories.some(c=>c.sexes[which]);       // composition: any category has it
 }
 function visibleCats(){                              // composition only: categories not hidden
@@ -667,7 +676,8 @@ function syncSexSeg(){
         : "This indicator was only reported for all children, so there is no boys or girls split.");
     } else if(v==="Boys"||v==="Girls"){
       disable=!sexAvail(v);
-      if(disable) why="This indicator was only reported for all children.";
+      if(disable) why = isCompare() ? "Some selected indicators were only reported for all children, so boys and girls is off for this comparison."
+        : "This indicator was only reported for all children.";
     }
     b.disabled=disable;
     if(why) b.title=why; else b.removeAttribute("title");
