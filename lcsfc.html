@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Longitudinal Cohort Study of the Filipino Child Data Explorer</title>
+<meta name="description" content="Interactive explorer for the Longitudinal Cohort Study of the Filipino Child (LCSFC): one cohort of Filipino children followed by survey wave and age, reporting on school, nutrition, health, safety, digital life, water and their own wellbeing, with cross-sector comparison.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#10263a; --ink-soft:#3d5366; --ink-faint:#64788a;
+  --paper:#f2f5f8; --card:#ffffff; --line:#dbe4ea; --line-strong:#b7c6d1;
+  --accent:#21409A; --focus:#21409A;
+  --fs:19px; --radius:10px;
+}
+*{box-sizing:border-box}
+html{font-size:var(--fs)}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Atkinson Hyperlegible",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;line-height:1.5}
+h1,h2,h3{font-family:"Atkinson Hyperlegible",sans-serif;letter-spacing:-.01em}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:4px}
+button{font:inherit;color:inherit;cursor:pointer}
+svg text{font-family:"Atkinson Hyperlegible",sans-serif}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+header.site{background:var(--card);border-bottom:1px solid var(--line);padding:1rem 1.25rem .85rem}
+.site-inner{max-width:1320px;margin:0 auto;display:flex;flex-wrap:wrap;gap:.75rem;align-items:flex-end;justify-content:space-between}
+.kicker{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:700;margin:0 0 .15rem}
+h1{font-size:1.4rem;font-weight:700;margin:0;line-height:1.15;max-width:40rem}
+.sub{margin:.3rem 0 0;color:var(--ink-soft);font-size:.92rem;max-width:52rem}
+.hdr-tools{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap}
+.textsize{display:flex;align-items:center;gap:.35rem}
+.textsize span{font-size:.8rem;color:var(--ink-faint);margin-right:.15rem}
+.textsize button{border:1px solid var(--line-strong);background:var(--card);border-radius:8px;min-width:2.4rem;min-height:2.4rem;font-weight:700;font-size:1rem}
+.textsize button[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
+.toolbtn{border:1px solid var(--line-strong);background:var(--card);border-radius:8px;
+  padding:.5rem .8rem;min-height:2.6rem;font-weight:700;font-size:.9rem}
+.toolbtn:hover{border-color:var(--accent);color:var(--accent)}
+
+.cohort{background:var(--card);border-bottom:1px solid var(--line)}
+.cohort-inner{max-width:1320px;margin:0 auto;padding:.6rem 1.25rem .5rem}
+.cohort-cap{font-size:.8rem;color:var(--ink-soft);margin:.25rem 0 0}
+.cohort-cap strong{color:var(--accent)}
+#cohortstrip{overflow-x:auto}
+#cohortstrip svg{min-width:50rem;width:100%;height:auto;display:block}
+
+nav.band{background:var(--card);border-bottom:1px solid var(--line)}
+.band-inner{max-width:1320px;margin:0 auto;display:flex;overflow-x:auto}
+.stab{flex:1 1 0;min-width:7.6rem;border:0;background:transparent;border-top:6px solid var(--sc,var(--accent));
+  padding:.5rem .65rem .6rem;text-align:left;border-right:1px solid var(--line)}
+.stab:last-child{border-right:0}
+.stab .sn{font-weight:700;font-size:.88rem;line-height:1.15;display:block}
+.stab .sc{display:block;font-size:.73rem;color:var(--ink-faint);margin-top:.1rem;font-variant-numeric:tabular-nums}
+.stab[aria-selected="true"]{background:var(--sd,var(--accent))}
+.stab[aria-selected="true"] .sn{color:#fff}
+.stab[aria-selected="true"] .sc{color:rgba(255,255,255,.9)}
+.stab:hover:not([aria-selected="true"]){background:var(--paper)}
+.stab.all{min-width:8.4rem;--sc:#5b6b78}
+
+.toolbar{max-width:1320px;margin:.9rem auto .2rem;padding:0 1.25rem;display:flex;flex-wrap:wrap;gap:.7rem 1rem;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:.25rem}
+.field>span.flabel{font-size:.78rem;font-weight:700;color:var(--ink-soft)}
+.field input[type="search"]{font:inherit;color:var(--ink);background:var(--card);
+  border:1px solid var(--line-strong);border-radius:8px;padding:.5rem .65rem;min-height:2.6rem;min-width:min(20rem,70vw)}
+.seg{display:inline-flex;border:1px solid var(--line-strong);border-radius:8px;overflow:hidden;background:var(--card)}
+.seg button{border:0;background:none;padding:.5rem .75rem;min-height:2.6rem;font-weight:700;font-size:.86rem;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.seg button:disabled{opacity:.4;cursor:not-allowed}
+.status{max-width:1320px;margin:.3rem auto 0;padding:0 1.25rem;font-size:.88rem;color:var(--ink-soft)}
+.status strong{font-variant-numeric:tabular-nums}
+
+.layout{max-width:1320px;margin:.8rem auto 0;padding:0 1.25rem 3rem;
+  display:grid;grid-template-columns:minmax(17rem,23rem) 1fr;gap:1rem;align-items:start}
+@media (max-width:900px){.layout{grid-template-columns:1fr}}
+
+.tree{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:.5rem .45rem;max-height:80vh;overflow-y:auto}
+.tgroup{margin:.2rem 0 .5rem}
+.tgroup>h2{font-size:.8rem;letter-spacing:.05em;text-transform:uppercase;margin:.45rem .4rem .25rem;font-weight:700;display:flex;align-items:center;gap:.4rem}
+.tgroup>h2 .dot{width:.7rem;height:.7rem;border-radius:3px;flex:0 0 auto}
+.fam{border-top:1px solid var(--line);padding:.12rem 0}
+.fam:first-of-type{border-top:0}
+.famname{font-weight:700;font-size:.82rem;color:var(--ink-soft);padding:.25rem .3rem .1rem}
+.irow{display:flex;align-items:center;gap:.5rem;padding:.1rem .25rem;border-radius:6px}
+.irow:hover{background:var(--paper)}
+.irow input[type="checkbox"]{width:1.05rem;height:1.05rem;flex:0 0 auto;accent-color:var(--accent)}
+.irow input:disabled{opacity:.35}
+.irow .spacer{width:1.05rem;flex:0 0 auto}
+.iname{flex:1;border:0;background:none;text-align:left;font-size:.88rem;padding:.26rem .2rem;border-radius:6px;line-height:1.3}
+.iname:hover{color:var(--accent)}
+.irow[data-active="true"]{background:#eaf0f9}
+.irow[data-active="true"] .iname{font-weight:700;color:var(--accent)}
+.itag{font-size:.63rem;font-weight:700;letter-spacing:.03em;color:#fff;border-radius:4px;padding:.05rem .32rem;flex:0 0 auto}
+.itag.comp{background:#7F3F98}
+.itag.mr{background:#C15E12}
+
+.viz{position:sticky;top:.7rem;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:.9rem 1.05rem 1.05rem;min-height:26rem;border-top:5px solid var(--accent)}
+@media (max-width:900px){.viz{position:static}}
+.viz h2{font-size:1.12rem;margin:0;line-height:1.25}
+.vizhead{display:flex;flex-wrap:wrap;gap:.4rem .6rem;align-items:baseline;justify-content:space-between}
+.chipset{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.15rem}
+.minichip{font-size:.72rem;font-weight:700;letter-spacing:.03em;border:1px solid var(--line-strong);border-radius:99px;padding:.1rem .55rem;color:var(--ink-soft);white-space:nowrap}
+.minichip.sector{color:#fff;border:0}
+.note{background:#fbf1e6;border:1px solid #efcfa8;border-radius:8px;padding:.5rem .7rem;font-size:.83rem;color:#6b4a24;margin:.6rem 0 0}
+.note.mh{background:#f1ecf6;border-color:#d4c2e3;color:#4a2f63}
+.note.prov{background:#eef3f8;border-color:#c6d6e4;color:#2f4a63}
+.note strong{color:inherit}
+
+.chips{display:flex;flex-wrap:wrap;gap:.5rem;margin:.7rem 0 .15rem}
+.chip{border:1px solid var(--line);border-radius:8px;padding:.35rem .7rem;min-width:7rem;background:var(--paper)}
+.chip .cl{display:block;font-size:.66rem;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-faint);font-weight:700}
+.chip .cv{display:block;font-size:1.12rem;font-weight:700;font-variant-numeric:tabular-nums}
+.chip .cs{display:block;font-size:.72rem;color:var(--ink-soft)}
+.chipcap{font-size:.76rem;color:var(--ink-faint);margin:.1rem 0 0}
+
+.vbar{display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap;margin:.8rem 0 .4rem;border-bottom:1px solid var(--line)}
+.vtabs{display:flex;gap:.3rem;flex-wrap:wrap}
+.vtab{border:0;background:none;font-weight:700;font-size:.92rem;padding:.4rem .7rem;border-bottom:3px solid transparent;color:var(--ink-soft)}
+.vtab[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+.vtab:disabled{opacity:.4;cursor:not-allowed}
+.dlmenu{position:relative}
+.dlmenu>summary{list-style:none;cursor:pointer;border:1px solid var(--line-strong);border-radius:8px;padding:.35rem .7rem;font-size:.82rem;font-weight:700;min-height:2.2rem;display:inline-flex;align-items:center;gap:.3rem}
+.dlmenu>summary::-webkit-details-marker{display:none}
+.dlmenu[open]>summary{border-color:var(--accent);color:var(--accent)}
+.dlmenu .opts{position:absolute;right:0;top:calc(100% + .25rem);z-index:30;background:var(--card);border:1px solid var(--line-strong);border-radius:8px;box-shadow:0 6px 18px rgba(16,38,58,.18);padding:.3rem;min-width:12rem}
+.dlmenu .opts button{display:block;width:100%;text-align:left;border:0;background:none;padding:.4rem .5rem;border-radius:6px;font-size:.86rem;font-weight:600}
+.dlmenu .opts button:hover{background:var(--paper)}
+.legend{display:flex;flex-wrap:wrap;gap:.3rem .9rem;font-size:.82rem;margin:.1rem 0 .3rem}
+.legend .li{display:inline-flex;align-items:center;gap:.35rem;cursor:pointer;border:0;background:none;padding:.1rem .15rem;border-radius:5px;text-align:left}
+.legend .li[aria-pressed="false"]{opacity:.35}
+.legend .sw{width:1rem;height:.3rem;border-radius:2px;display:inline-block;flex:0 0 auto}
+.charthelp{font-size:.76rem;color:var(--ink-faint);margin:.25rem 0 0}
+#chartwrap{overflow-x:auto}
+#chart{display:block;width:100%;height:auto;min-width:34rem}
+.pt{cursor:pointer}
+.pt:focus-visible{outline:3px solid var(--focus)}
+
+#tip{position:fixed;z-index:60;pointer-events:none;background:var(--ink);color:#fff;border-radius:8px;
+  padding:.5rem .65rem;font-size:.8rem;line-height:1.4;max-width:20rem;box-shadow:0 6px 18px rgba(16,38,58,.35);display:none}
+#tip b{font-size:.86rem}
+#tip .tr{color:#cfe0ea}
+
+.tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+table.data{border-collapse:collapse;width:100%;font-size:.85rem}
+table.data th,table.data td{padding:.4rem .55rem;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+table.data td.num,table.data th.num{text-align:right;font-variant-numeric:tabular-nums}
+table.data thead th{background:var(--paper);font-size:.72rem;letter-spacing:.03em;color:var(--ink-soft);position:sticky;top:0;line-height:1.25}
+table.data thead th .wv{display:block;font-weight:600;color:var(--ink-faint);text-transform:none;letter-spacing:0}
+table.data tbody tr:hover{background:#eef3f9}
+
+footer.src{max-width:1320px;margin:0 auto;padding:0 1.25rem 2.5rem;font-size:.8rem;color:var(--ink-faint)}
+footer.src p{margin:.3rem 0}
+
+body.fsfallback{overflow:hidden}
+body.fsfallback .fswrap{position:fixed;inset:0;z-index:50;background:var(--paper);overflow-y:auto}
+</style>
+</head>
+<body>
+<div class="fswrap">
+<header class="site">
+  <div class="site-inner">
+    <div>
+      <p class="kicker">UNICEF Philippines, LCSFC, children's own reports</p>
+      <h1>Longitudinal Cohort Study of the Filipino Child Data Explorer</h1>
+      <p class="sub">One cohort of Filipino children followed across survey waves, reporting for themselves on school, food, health, safety, digital life, water and how they feel. Pick an indicator, tick several to compare across sectors, and switch between all children, boys and girls.</p>
+    </div>
+    <div class="hdr-tools">
+      <div class="textsize" role="group" aria-label="Text size">
+        <span aria-hidden="true">Text size</span>
+        <button type="button" data-fs="17" aria-pressed="false" aria-label="Smaller text">A</button>
+        <button type="button" data-fs="19" aria-pressed="true" aria-label="Default text" style="font-size:1.15rem">A</button>
+        <button type="button" data-fs="22" aria-pressed="false" aria-label="Larger text" style="font-size:1.3rem">A</button>
+      </div>
+      <button type="button" class="toolbtn" id="fsbtn">Full screen</button>
+    </div>
+  </div>
+</header>
+
+<section class="cohort" aria-label="Cohort timeline">
+  <div class="cohort-inner">
+    <div id="cohortstrip"></div>
+    <p class="cohort-cap" id="cohortcap"></p>
+  </div>
+</section>
+
+<nav class="band" aria-label="Sectors">
+  <div class="band-inner" role="tablist" id="sectorband"></div>
+</nav>
+
+<div class="toolbar">
+  <label class="field">
+    <span class="flabel">Search indicators</span>
+    <input type="search" id="q" placeholder="Type to filter, e.g. happy, stunting, internet" autocomplete="off">
+  </label>
+  <div class="field">
+    <span class="flabel">Show</span>
+    <div class="seg" role="group" aria-label="Show by sex" id="sexseg">
+      <button type="button" data-sex="All Children" aria-pressed="true">All children</button>
+      <button type="button" data-sex="Boys" aria-pressed="false">Boys</button>
+      <button type="button" data-sex="Girls" aria-pressed="false">Girls</button>
+      <button type="button" data-sex="Compare" aria-pressed="false">Boys vs girls</button>
+    </div>
+  </div>
+  <button type="button" class="toolbtn" id="clearsel" hidden>Clear selection</button>
+  <button type="button" class="toolbtn" id="dlcsv">Download data (CSV)</button>
+</div>
+<p class="status" id="status" role="status" aria-live="polite"></p>
+
+<div class="layout">
+  <nav class="tree" id="tree" aria-label="Indicators"></nav>
+
+  <section class="viz" aria-label="Visualization">
+    <div class="vizhead">
+      <h2 id="vtitle">Select an indicator</h2>
+    </div>
+    <div class="chipset" id="chipset"></div>
+    <div id="vnote"></div>
+    <div class="chips" id="chips"></div>
+    <p class="chipcap" id="chipcap"></p>
+
+    <div class="vbar">
+      <div class="vtabs" role="tablist" aria-label="View">
+        <button type="button" class="vtab" role="tab" id="tab-chart" aria-selected="true" aria-controls="view-chart">Trend</button>
+        <button type="button" class="vtab" role="tab" id="tab-stack" aria-selected="false" aria-controls="view-chart" hidden>Stacked</button>
+        <button type="button" class="vtab" role="tab" id="tab-table" aria-selected="false" aria-controls="view-table">Table</button>
+      </div>
+      <details class="dlmenu" id="dlchart">
+        <summary>Download chart</summary>
+        <div class="opts">
+          <button type="button" data-fmt="png">PNG image</button>
+          <button type="button" data-fmt="svg">SVG (vector)</button>
+        </div>
+      </details>
+    </div>
+
+    <div id="view-chart" role="tabpanel" aria-labelledby="tab-chart">
+      <div class="legend" id="legend"></div>
+      <div id="chartwrap"><svg id="chart" xmlns="http://www.w3.org/2000/svg" role="img"></svg></div>
+      <p class="charthelp" id="charthelp"></p>
+    </div>
+
+    <div id="view-table" role="tabpanel" aria-labelledby="tab-table" hidden>
+      <div class="tblwrap"><table class="data" id="dtable"><thead></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+</div>
+
+<footer class="src">
+  <p id="srcline"></p>
+  <p>Wave and age come from the LCSFC household study's own labels, reused from the household explorer. The study split 2020 into Wave 4 (age 13) and Wave 4a (age 14); this child export has a single 2020 round, shown as Wave 4. The 2022 round is not in the household file, so its wave and age are a provisional extension and are marked with an asterisk.</p>
+  <p>Values are national, from children's own responses. "Reason" questions let a child give more than one answer, so those shares add past 100 percent; they are marked and never stacked. Handwashing frequency, school spending and the food-insecurity score are not percentages. Sector colours follow the SitAn child-rights wheel. Boys and girls series, category grouping and sum-type labels are derived by the build tooling from the export structure, not stated by the source.</p>
+</footer>
+</div>
+
+<div id="tip" role="tooltip"></div>
+
+<script>
+/* CHILD_DATA_START */
+const CHILD_DATA = {"meta":{"study":"LSCFS child-level","source_file":"lscfs-child.xlsx","note":"Boys and Girls series, composition categories, sum-type labels and inferred units are assigned by the build script from the export structure, not stated by the source.","waveNote":"Wave and age come from the LSCFS household study's own labels (reused from the household explorer). The 2022 round is not in the household file; its wave and age are a provisional extension."},"years":[{"y":"2016","wave":"Wave 1","age":10,"provisional":false,"t":2016.5},{"y":"2018","wave":"Wave 2","age":11,"provisional":false,"t":2018.5},{"y":"2019","wave":"Wave 3","age":12,"provisional":false,"t":2019.5},{"y":"2020","wave":"Wave 4","age":13,"provisional":false,"t":2020.5},{"y":"2021","wave":"Wave 5","age":15,"provisional":false,"t":2021.5},{"y":"2022","wave":"Wave 6","age":16,"provisional":true,"t":2022.5}],"covidYear":"2020","sectors":[{"name":"Health","dim":"Survive and Thrive","color":"#21409A","deep":"#21409A","families":[{"name":null,"indicators":[{"id":"i001","name":"Percentage of children by anxiety scale","short":"Children by Anxiety Scale","button":"Anxiety Scale","grouping":"Percentage of children by anxiety scale","type":"composition","unit":"percent","unitInferred":false,"sumType":"exclusive","categories":[{"label":"Normal","sexes":{"All Children":{"2018":89.8,"2020":92.9,"2021":83.8},"Boys":{"2018":87.5,"2020":90.3,"2021":81.1},"Girls":{"2018":92.2,"2020":95.8,"2021":86.9}}},{"label":"Borderline","sexes":{"All Children":{"2018":6.9,"2020":5.3,"2021":8.7},"Boys":{"2018":8.4,"2020":7.5,"2021":9.5},"Girls":{"2018":5.3,"2020":2.8,"2021":7.7}}},{"label":"Clinical","sexes":{"All Children":{"2018":3.3,"2020":1.8,"2021":7.5},"Boys":{"2018":4.1,"2020":2.2,"2021":9.4},"Girls":{"2018":2.5,"2020":1.4,"2021":5.5}}}]}]},{"name":null,"indicators":[{"id":"i002","name":"Percentage of children by depression scale","short":"Children by Depression Scale","button":"Depression Scale","grouping":"Percentage of children by depression scale","type":"composition","unit":"percent","unitInferred":false,"sumType":"exclusive","categories":[{"label":"Normal","sexes":{"All Children":{"2018":82.7,"2020":86.4,"2021":89.8},"Boys":{"2018":81.5,"2020":84.6,"2021":89.2},"Girls":{"2018":84,"2020":88.3,"2021":90.4}}},{"label":"Borderline","sexes":{"All Children":{"2018":10.8,"2020":10.7,"2021":7.8},"Boys":{"2018":10.8,"2020":11.3,"2021":8},"Girls":{"2018":10.7,"2020":10.1,"2021":7.6}}},{"label":"Clinical","sexes":{"All Children":{"2018":6.5,"2020":2.9,"2021":2.5},"Boys":{"2018":7.6,"2020":4.1,"2021":2.8},"Girls":{"2018":5.3,"2020":1.6,"2021":2}}}]}]},{"name":null,"indicators":[{"id":"i003","name":"Percentage of children reporting any illness in past six months","short":"Illness in Past 6 Months","button":"Illness in Past 6 Months","grouping":"Percentage of children reporting any illness in past six months","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":29.9,"2018":19.1,"2019":49.2,"2020":46.9,"2021":7,"2022":40.4},"Boys":{"2016":31.3,"2018":19.6,"2019":49,"2020":48.1,"2021":7.9,"2022":40.8},"Girls":{"2016":28.2,"2018":18.6,"2019":49.4,"2020":45.7,"2021":6,"2022":40}}}]},{"name":null,"indicators":[{"id":"i004","name":"Percentage of children reporting any severe illness in past six months","short":"Severe Illness in Past 6 Months","button":"Severe Illness in Past 6 Months","grouping":"Percentage of children reporting any severe illness in past six months","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":7.5,"2018":6,"2019":9.7,"2020":9.8,"2022":7.9},"Boys":{"2016":7.7,"2018":6.6,"2019":9,"2020":9.3,"2022":6.7},"Girls":{"2016":7.2,"2018":5.4,"2019":10.5,"2020":10.4,"2022":9.4}}}]},{"name":null,"indicators":[{"id":"i005","name":"Percentage of children who missed school in previous month because of illness","short":"Missed School Due to Illness","button":"Missed School Due to Illness","grouping":"Percentage of children who missed school in previous month because of illness","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":65.9,"2018":58.5,"2019":54.9,"2020":52.2,"2022":48.4},"Boys":{"2016":65.5,"2018":56.5,"2019":51.6,"2020":50.5,"2022":45.6},"Girls":{"2016":66.4,"2018":61.1,"2019":59.3,"2020":54.4,"2022":52.8}}}]},{"name":null,"indicators":[{"id":"i006","name":"Percentage of children with absences from school in previous month","short":"School Absences in Past Month","button":"School Absences in Past Month","grouping":"Percentage of children with absences from school in previous month","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":58.4,"2018":55.5,"2019":53.4,"2020":50.5,"2022":42.3},"Boys":{"2016":61.5,"2018":60.4,"2019":59,"2020":55.4,"2022":49.3},"Girls":{"2016":54.9,"2018":50.3,"2019":47.5,"2020":45.3,"2022":34.7}}}]}],"count":6},{"name":"Nutrition","dim":"Survive and Thrive","color":"#4E73C8","deep":"#2F56A8","families":[{"name":null,"indicators":[{"id":"i007","name":"Food Insecurity Experience Scale (FIES)","short":"Food Insecurity Experience Scale (FIES)","button":"Food Insecurity","grouping":"Food Insecurity Experience Scale (FIES)","type":"simple","unit":"score","unitInferred":true,"series":{"All Children":{"2016":3.4,"2018":2.6,"2019":2.4,"2020":2.3,"2021":2.7}}}]},{"name":"Nutritional adequacy","indicators":[{"id":"i008","name":"Percentage of children meeting nutritional adequacy","short":"Meeting Nutritional Adequacy","button":"Nutritional Adequacy","grouping":"Nutritional adequacy","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":73.9,"2018":73.7,"2019":73.9,"2020":77.5,"2022":77.3},"Boys":{"2016":71.1,"2018":70.7,"2019":70.1,"2020":73.5,"2022":74.2},"Girls":{"2016":76.9,"2018":77,"2019":78,"2020":81.8,"2022":80.8}}},{"id":"i009","name":"Percentage of children unable to eat healthy and nutritious food","short":"Unable to eat healthy and nutritious food","button":"Can't Eat Healthy Food","grouping":"Nutritional adequacy","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":55.1,"2018":46.3,"2019":36.7,"2020":36.6,"2021":35.1},"Boys":{"2016":56.7,"2018":48.8,"2019":39,"2020":39.2,"2021":37.4},"Girls":{"2016":53.3,"2018":43.5,"2019":34.2,"2020":33.9,"2021":32.7}}},{"id":"i012","name":"Percentage of children who experienced hunger but did not eat","short":"Experienced Hunger but Didn't Eat","button":"Hungry but Didn't Eat","grouping":"Nutritional adequacy","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":43,"2018":34.2,"2019":26.5,"2020":28,"2021":28.8},"Boys":{"2016":46.3,"2018":37.5,"2019":29.3,"2020":29.6,"2021":30.6},"Girls":{"2016":39.3,"2018":30.7,"2019":23.4,"2020":26.3,"2021":26.8}}}]},{"name":"Percentage of children who are overweight and obese","indicators":[{"id":"i010","name":"Percentage of children who are obese","short":"Obese Children","button":"Obese Children","grouping":"Percentage of children who are overweight and obese","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":4.6,"2018":3.7,"2019":3.4,"2020":3.4,"2022":3.3},"Boys":{"2016":6.4,"2018":4.6,"2019":4,"2020":4.3,"2022":3.9},"Girls":{"2016":2.7,"2018":2.7,"2019":2.9,"2020":2.5,"2022":2.7}}},{"id":"i011","name":"Percentage of children who are overweight","short":"Overweight Children","button":"Overweight Children","grouping":"Percentage of children who are overweight and obese","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":6.2,"2018":7.2,"2019":7.1,"2020":8.1,"2022":8},"Boys":{"2016":6.6,"2018":7.3,"2019":6.7,"2020":8.2,"2022":8.6},"Girls":{"2016":5.7,"2018":7.1,"2019":7.5,"2020":7.9,"2022":7.3}}}]},{"name":"Percentage of thin children","indicators":[{"id":"i013","name":"Percentage of severely thin children","short":"Severely Thin Children","button":"Severely Thin Children","grouping":"Percentage of thin children","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":3.9,"2018":3.4,"2019":3.9,"2020":2.9,"2022":2.5},"Boys":{"2016":4.5,"2018":4.1,"2019":4.9,"2020":4.2,"2022":3.3},"Girls":{"2016":3.2,"2018":2.6,"2019":2.8,"2020":1.5,"2022":1.4}}},{"id":"i015","name":"Percentage of thin children","short":"Thin Children","button":"Thin Children","grouping":"Percentage of thin children","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":11.4,"2018":12,"2019":11.7,"2020":8.1,"2022":8.9},"Boys":{"2016":11.4,"2018":13.2,"2019":14.4,"2020":9.8,"2022":10},"Girls":{"2016":11.5,"2018":10.6,"2019":8.8,"2020":6.3,"2022":7.7}}}]},{"name":null,"indicators":[{"id":"i014","name":"Percentage of stunted children","short":"Stunted Children","button":"Stunted Children","grouping":"Percentage of stunted children","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":30.5,"2018":27.8,"2019":24.6,"2020":21.5,"2022":26.5},"Boys":{"2016":31.9,"2018":30.7,"2019":28.7,"2020":23.2,"2022":23.5},"Girls":{"2016":29,"2018":24.6,"2019":20,"2020":19.6,"2022":29.9}}}]}],"count":9},{"name":"Education","dim":"Learn","color":"#00A79D","deep":"#04776F","families":[{"name":null,"indicators":[{"id":"i016","name":"Percentage of children by level of education they wish to complete","short":"Desired Education Level","button":"Education Level Desired","grouping":"Percentage of children by level of education they wish to complete","type":"composition","unit":"percent","unitInferred":false,"sumType":"exclusive","categories":[{"label":"Elementary or less","sexes":{"All Children":{"2016":1.2,"2018":0.7,"2019":0.4,"2020":0.7,"2021":0.1}}},{"label":"High School","sexes":{"All Children":{"2016":10.1,"2018":9.1,"2019":8.7,"2020":7.2,"2021":4.8}}},{"label":"College","sexes":{"All Children":{"2016":83.5,"2018":86.3,"2019":88.1,"2020":88.6,"2021":93.2}}},{"label":"More than college","sexes":{"All Children":{"2016":4.7,"2018":3.6,"2019":2.7,"2020":3.2,"2021":1.7}}},{"label":"Vocational/technical course","sexes":{"All Children":{"2016":0.5,"2018":0.3,"2019":0.1,"2020":0.3,"2021":0.2}}}]}]},{"name":null,"indicators":[{"id":"i017","name":"Percentage of children who are not currently enrolled in school","short":"Not Enrolled in School","button":"Not Enrolled","grouping":"Percentage of children who are not currently enrolled in school","type":"composition","unit":"percent","unitInferred":false,"sumType":"exclusive","categories":[{"label":"Not interested in school","sexes":{"All Children":{"2016":15,"2021":34.9},"Boys":{"2016":15.4,"2021":40.3},"Girls":{"2016":14.3,"2021":18.9}}},{"label":"Financial reasons","sexes":{"All Children":{"2016":24.1,"2021":9.1},"Boys":{"2016":22.9,"2021":8.8},"Girls":{"2016":26.1,"2021":10.1}}},{"label":"Transferee","sexes":{"All Children":{"2016":18,"2021":7.2},"Boys":{"2016":18.8,"2021":6.1},"Girls":{"2016":16.8,"2021":10.5}}},{"label":"Illness","sexes":{"All Children":{"2016":11.1,"2021":2.5},"Boys":{"2016":12.1,"2021":3.1},"Girls":{"2016":9.7,"2021":0.8}}},{"label":"Child perceived to be mentally delayed","sexes":{"All Children":{"2016":4.1,"2021":2.5},"Boys":{"2016":5.1,"2021":2.7},"Girls":{"2016":2.5,"2021":2}}},{"label":"No one to look after child","sexes":{"All Children":{"2016":10.4,"2021":5.1},"Boys":{"2016":7.8,"2021":4.6},"Girls":{"2016":14.5,"2021":6.4}}},{"label":"Afraid/ashamed to attend school for various reasons","sexes":{"All Children":{"2016":8.8,"2021":6.4},"Boys":{"2016":10.6,"2021":5.3},"Girls":{"2016":5.8,"2021":8.8}}},{"label":"Other reasons","sexes":{"All Children":{"2016":8.5,"2021":32.4},"Boys":{"2016":7.4,"2021":29},"Girls":{"2016":10.3,"2021":42.5}}}]}]},{"name":null,"indicators":[{"id":"i018","name":"Percentage of children who repeated a grade in current school year","short":"Repeated a Grade This Year","button":"Repeated a Grade","grouping":"Repeated a Grade This Year","type":"composition","unit":"percent","unitInferred":false,"sumType":"exclusive","categories":[{"label":"Not interested in school","sexes":{"All Children":{"2016":18.3,"2018":16.4,"2019":14.4,"2020":27.7,"2021":36},"Boys":{"2016":18.89,"2018":18.7,"2019":16.7,"2020":29.9,"2021":41.2},"Girls":{"2016":17.46,"2018":10.6,"2019":10,"2020":22.3,"2021":20.9}}},{"label":"Other reasons","sexes":{"All Children":{"2016":18.4,"2018":22.5,"2019":9.6,"2020":12.8,"2021":12.5},"Boys":{"2016":17.8,"2018":16.6,"2019":8.3,"2020":8.7,"2021":8.4},"Girls":{"2016":19.4,"2018":37.1,"2019":12,"2020":22.8,"2021":24.4}}},{"label":"Failed in class","sexes":{"All Children":{"2016":41.8,"2018":38.6,"2019":51.5,"2020":44.2,"2021":40.2},"Boys":{"2016":41.42,"2018":43.1,"2019":49.2,"2020":47.3,"2021":39.2},"Girls":{"2016":42.35,"2018":27.5,"2019":56.1,"2020":36.5,"2021":43.1}}},{"label":"Due to child’s health condition","sexes":{"All Children":{"2016":15.3,"2018":16.5,"2019":20.1,"2020":7,"2021":7.5},"Boys":{"2016":16.2,"2018":15.7,"2019":22.1,"2020":3.2,"2021":6.1},"Girls":{"2016":13.86,"2018":18.3,"2019":16.2,"2020":16.2,"2021":11.6}}},{"label":"Afraid/ashamed to attend school for various reasons","sexes":{"All Children":{"2016":6.2,"2018":6.1,"2019":4.4,"2020":8.4,"2021":3.8},"Boys":{"2016":5.7,"2018":5.9,"2019":3.7,"2020":10.9,"2021":5.1},"Girls":{"2016":7,"2018":6.4,"2019":5.8,"2020":2.2,"2021":0}}}],"headline":{"All Children":{"2018":1.6,"2019":1.7,"2020":2.3,"2021":2.7},"Boys":{"2018":2.5,"2019":2.4,"2020":2.9,"2021":3.8},"Girls":{"2018":0.8,"2019":1,"2020":1.7,"2021":1.5}}}]},{"name":"Percentage of children currently in school and on track in school","indicators":[{"id":"i019","name":"Percentage of children who are currently in school","short":"Currently in School","button":"Currently in School","grouping":"Percentage of children currently in school and on track in school","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":98.4,"2018":98.4,"2019":97.2,"2020":95.5,"2021":96.3},"Boys":{"2016":98.3,"2018":97.6,"2019":96.1,"2020":94.2,"2021":94.8},"Girls":{"2016":98.6,"2018":99.2,"2019":98.3,"2020":96.9,"2021":98}}},{"id":"i020","name":"Percentage of children who are on track in schooling","short":"On Track in Schooling","button":"On Track in Schooling","grouping":"Percentage of children currently in school and on track in school","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":90.7,"2018":89.4,"2019":87.9,"2020":85.4,"2021":82.8},"Boys":{"2016":88.9,"2018":86.8,"2019":85,"2020":82.4,"2021":77.8},"Girls":{"2016":92.7,"2018":92.2,"2019":91,"2020":88.6,"2021":88.4}}}]}],"count":5},{"name":"Protection","dim":"Protection","color":"#EC7D30","deep":"#C15E12","families":[{"name":null,"indicators":[{"id":"i021","name":"Percentage of children who have witnessed any physical violence at home","short":"Witnessed Physical Violence at Home","button":"Witnessed Violence at Home","grouping":"Witnessed Physical Violence at Home","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":29,"2018":24.4,"2019":21.8,"2020":20,"2022":17.8},"Boys":{"2016":32.6,"2018":28,"2019":25,"2020":20.5,"2022":18.6},"Girls":{"2016":25.1,"2018":20.6,"2019":18.2,"2020":19.5,"2022":16.9}}}]},{"name":null,"indicators":[{"id":"i022","name":"Percentage of children who reported being forcefully hurt by parent/s","short":"Forcefully Hurt by Parent/s","button":"Forcefully Hurt by Parent/s","grouping":"Forcefully Hurt by Parent/s","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":16.2,"2018":12.8,"2019":10.4,"2020":8.5,"2022":4.8},"Boys":{"2016":18.8,"2018":17,"2019":13.6,"2020":9.7,"2022":6.2},"Girls":{"2016":13.3,"2018":8.3,"2019":6.9,"2020":7.2,"2022":3.2}}}]},{"name":null,"indicators":[{"id":"i023","name":"Percentage of children who reported being physically hurt by an adult","short":"Physically Hurt by an Adult","button":"Hurt by Adult","grouping":"Physically Hurt by an Adult","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":22.5,"2018":14.4,"2019":11.7,"2020":10.2,"2022":6.8},"Boys":{"2016":27.5,"2018":18.5,"2019":15,"2020":12.3,"2022":8.5},"Girls":{"2016":16.9,"2018":9.9,"2019":8.1,"2020":8.1,"2022":4.9}}}]},{"name":null,"indicators":[{"id":"i024","name":"Percentage of children who reported being physically hurt by friends or classmates","short":"Physically Hurt by Friends/Classmates","button":"Hurt by Friends","grouping":"Physically Hurt by Friends/Classmates","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":38.4,"2018":29.5,"2019":22.6,"2020":18.3,"2022":8.3},"Boys":{"2016":43.7,"2018":33.9,"2019":27.5,"2020":22,"2022":10.6},"Girls":{"2016":32.7,"2018":24.8,"2019":17.4,"2020":14.2,"2022":5.6}}}]},{"name":"Emotional Harm","indicators":[{"id":"i025","name":"Percentage of children who reported that friends or classmates have said or done something that hurt their feelings","short":"Hurt Feelings by Friends/Classmates","button":"Hurt Feelings by Friends","grouping":"Emotional Harm","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":44.6,"2018":44.3,"2019":40.6,"2020":36.3,"2022":27.8},"Boys":{"2016":42.2,"2018":42.2,"2019":39,"2020":32.6,"2022":24},"Girls":{"2016":47.3,"2018":46.5,"2019":42.3,"2020":40.3,"2022":32}}},{"id":"i026","name":"Percentage of children who reported that parents hurt their feelings","short":"Hurt Feelings by Parents","button":"Hurt Feelings by Parents","grouping":"Emotional Harm","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":21.4,"2018":19.9,"2019":18.4,"2020":18,"2022":19.4},"Boys":{"2016":23.6,"2018":21.2,"2019":18.2,"2020":16.6,"2022":15.1},"Girls":{"2016":18.9,"2018":18.5,"2019":18.6,"2020":19.5,"2022":24.2}}}]},{"name":null,"indicators":[{"id":"i027","name":"Percentage of children by current state of happiness","short":"Current State of Happiness","button":"State of Happiness","grouping":"Current State of Happiness (%)","type":"composition","unit":"percent","unitInferred":false,"sumType":"exclusive","categories":[{"label":"Not happy","sexes":{"All Children":{"2016":2.5,"2018":1.5,"2019":1.4,"2020":0.9,"2021":1.2,"2022":1.5},"Boys":{"2016":3.7,"2018":1.7,"2019":1.9,"2020":0.8,"2021":1.4,"2022":1.5},"Girls":{"2016":1.2,"2018":1.2,"2019":1,"2020":1.1,"2021":1,"2022":1.4}}},{"label":"Happy","sexes":{"All Children":{"2016":71.7,"2018":78.9,"2019":82.4,"2020":85.1,"2021":86.9,"2022":75.4},"Boys":{"2016":71.7,"2018":80.1,"2019":83.3,"2020":86.1,"2021":88,"2022":71.8},"Girls":{"2016":71.8,"2018":77.7,"2019":81.4,"2020":84,"2021":85.6,"2022":79.5}}},{"label":"Very happy","sexes":{"All Children":{"2016":25.8,"2018":19.7,"2019":16.2,"2020":14,"2021":12,"2022":23.1},"Boys":{"2016":24.7,"2018":18.3,"2019":14.8,"2020":13.1,"2021":10.7,"2022":26.7},"Girls":{"2016":27,"2018":21.1,"2019":17.7,"2020":14.9,"2021":13.4,"2022":19.1}}}]}]},{"name":null,"indicators":[{"id":"i028","name":"Percentage of children by reason for happiness","short":"Reason for Happiness","button":"Reason for Happiness","grouping":"Reason for Happiness","type":"composition","unit":"percent","unitInferred":false,"sumType":"multiple","categories":[{"label":"Playing outside or physical games","sexes":{"All Children":{"2016":35.8,"2018":34.2,"2019":25.5,"2020":15.1,"2021":14.4,"2022":13},"Boys":{"2016":41,"2018":41.6,"2019":36.4,"2020":26,"2021":22.3,"2022":21.8},"Girls":{"2016":30.2,"2018":26.2,"2019":13.7,"2020":3.3,"2021":5.5,"2022":3}}},{"label":"Being with family or when family is healthy or happy","sexes":{"All Children":{"2016":27.6,"2018":29.1,"2019":35.2,"2020":41.9,"2021":43.6,"2022":47.5},"Boys":{"2016":21.9,"2018":21.8,"2019":25.7,"2020":32.5,"2021":33.4,"2022":37.4},"Girls":{"2016":33.9,"2018":36.9,"2019":45.5,"2020":52,"2021":55.1,"2022":58.8}}},{"label":"Being with friends and classmates","sexes":{"All Children":{"2016":9.3,"2018":16.5,"2019":27.2,"2020":37.9,"2021":29.3,"2022":37.9},"Boys":{"2016":8.6,"2018":14.5,"2019":23.7,"2020":30.2,"2021":27.9,"2022":37.6},"Girls":{"2016":10,"2018":18.6,"2019":31,"2020":46.2,"2021":30.9,"2022":38.2}}},{"label":"Toys or money or material things","sexes":{"All Children":{"2016":8.8,"2018":5.8,"2019":4.3,"2020":2.7,"2021":2.9,"2022":2.3},"Boys":{"2016":8.6,"2018":5.7,"2019":3.6,"2020":2.2,"2021":2,"2022":2},"Girls":{"2016":9,"2018":5.9,"2019":5,"2020":3.2,"2021":4,"2022":2.6}}},{"label":"Playing online games or watching TV","sexes":{"All Children":{"2016":6.4,"2018":11.2,"2019":21.1,"2020":23.3,"2021":30.7,"2022":16.9},"Boys":{"2016":8.2,"2018":14.1,"2019":26,"2020":30.5,"2021":39.3,"2022":21.8},"Girls":{"2016":4.4,"2018":8.2,"2019":15.8,"2020":15.5,"2021":21,"2022":11.5}}},{"label":"Special occasions or time at the beach or eating fastfood","sexes":{"All Children":{"2016":8.6,"2018":7.5,"2019":4.2,"2020":1.4,"2021":2.5,"2022":1.2},"Boys":{"2016":8.8,"2018":7.3,"2019":3.8,"2020":1.5,"2021":1.6,"2022":0.7},"Girls":{"2016":8.3,"2018":7.7,"2019":4.6,"2020":1.3,"2021":3.6,"2022":1.8}}},{"label":"Being in school or doing well in school","sexes":{"All Children":{"2016":3.9,"2018":3.1,"2019":3.5,"2020":3.5,"2021":3.8,"2022":8.4},"Boys":{"2016":3,"2018":1.7,"2019":2.5,"2020":2.7,"2021":3,"2022":7.7},"Girls":{"2016":4.9,"2018":4.5,"2019":4.6,"2020":4.4,"2021":4.6,"2022":9.3}}},{"label":"Roaming around or going places","sexes":{"All Children":{"2018":0.6,"2019":2.8,"2022":0},"Boys":{"2018":0.6,"2019":1.8,"2022":0},"Girls":{"2018":0.6,"2019":3.8,"2022":0}}},{"label":"Others","sexes":{"All Children":{"2016":3.4,"2018":3.9,"2019":5.8,"2020":5.3,"2021":10.2,"2022":10.9},"Boys":{"2016":3.3,"2018":3.7,"2019":5.2,"2020":4.9,"2021":6.4,"2022":8.5},"Girls":{"2016":3.4,"2018":4.1,"2019":6.6,"2020":5.7,"2021":14.4,"2022":13.5}}}]}]},{"name":null,"indicators":[{"id":"i029","name":"Percentage of children by reason for unhappiness","short":"Reason for Unhappiness","button":"Reason for Unhappiness","grouping":"Reason for Unhappiness","type":"composition","unit":"percent","unitInferred":false,"sumType":"multiple","categories":[{"label":"Others","sexes":{"All Children":{"2016":9.7,"2018":14.9,"2019":18.7},"Boys":{"2016":10.6,"2018":16.6,"2019":20.1},"Girls":{"2016":8.8,"2018":12.9,"2019":17.2}}},{"label":"Being scolded or punished","sexes":{"All Children":{"2016":21.7,"2018":17.7,"2019":20.8,"2020":14.3,"2021":11.6,"2022":8.2},"Boys":{"2016":24.9,"2018":18.6,"2019":19.8,"2020":14,"2021":10.6,"2022":7.3},"Girls":{"2016":18.1,"2018":16.7,"2019":21.8,"2020":14.6,"2021":12.7,"2022":9.1}}},{"label":"Conflict among friends or classmates","sexes":{"All Children":{"2016":14.3,"2018":17.9,"2019":15},"Boys":{"2016":12.3,"2018":16.5,"2019":13.2},"Girls":{"2016":16.6,"2018":19.4,"2019":16.8}}},{"label":"Being bullied in school","sexes":{"All Children":{"2016":16.2,"2018":9.9,"2019":8.3,"2020":14.4,"2021":4.7,"2022":4.3},"Boys":{"2016":14.5,"2018":9.6,"2019":8.9,"2020":13.9,"2021":5,"2022":5.3},"Girls":{"2016":18,"2018":10.2,"2019":7.6,"2020":15,"2021":4.3,"2022":3.2}}},{"label":"Conflict in the family","sexes":{"All Children":{"2016":8.9,"2018":11.2,"2019":13,"2020":13.3,"2021":9.6,"2022":10},"Boys":{"2016":7.7,"2018":9.5,"2019":9.4,"2020":11.9,"2021":6,"2022":8.6},"Girls":{"2016":10.2,"2018":13,"2019":16.9,"2020":14.8,"2021":13.7,"2022":11.6}}},{"label":"Cannot play outside or physical games","sexes":{"All Children":{"2016":7.5,"2018":4.9,"2019":3.9,"2020":5,"2021":5.5,"2022":2.6},"Boys":{"2016":9.1,"2018":6,"2019":6,"2020":7.7,"2021":8.9,"2022":4.6},"Girls":{"2016":5.8,"2018":3.7,"2019":1.7,"2020":2.1,"2021":1.7,"2022":0.4}}},{"label":"Being alone","sexes":{"All Children":{"2016":6.5,"2018":8.7,"2019":7.8},"Boys":{"2016":6.9,"2018":10,"2019":9.4},"Girls":{"2016":6,"2018":7.2,"2019":6.2}}},{"label":"When not with friends or classmates","sexes":{"All Children":{"2020":10.8,"2021":8.9,"2022":9},"Boys":{"2020":10.4,"2021":9.1,"2022":9.7},"Girls":{"2020":11.3,"2021":8.6,"2022":8.3}}},{"label":"When a family member leaves me","sexes":{"All Children":{"2016":5.7,"2018":6,"2019":6},"Boys":{"2016":5.1,"2018":4.9,"2019":5.5},"Girls":{"2016":6.4,"2018":7.2,"2019":6.6}}},{"label":"When not with my family","sexes":{"All Children":{"2020":16.2,"2021":23.5,"2022":16.8},"Boys":{"2020":15.4,"2021":20.8,"2022":15.8},"Girls":{"2020":17.1,"2021":26.4,"2022":17.9}}},{"label":"Not having money","sexes":{"All Children":{"2016":3.5,"2018":2.3,"2019":3.1,"2020":3.6,"2021":4.7,"2022":4.2},"Boys":{"2016":4.4,"2018":3.1,"2019":4,"2020":4.6,"2021":5.9,"2022":5.9},"Girls":{"2016":2.5,"2018":1.5,"2019":2.1,"2020":2.5,"2021":3.4,"2022":2.3}}},{"label":"Sickness or death in the family","sexes":{"All Children":{"2016":5.3,"2018":7.9,"2019":7.9,"2020":5.4,"2021":6.6,"2022":7.8},"Boys":{"2016":4.7,"2018":6.9,"2019":7.6,"2020":4.2,"2021":5.6,"2022":6.6},"Girls":{"2016":6,"2018":9,"2019":8.1,"2020":6.7,"2021":7.7,"2022":9.3}}},{"label":"Schooling difficulty","sexes":{"All Children":{"2016":2.4,"2018":1.7,"2019":3.8,"2020":4.9,"2021":4.5,"2022":10.2},"Boys":{"2016":1.7,"2018":1.4,"2019":2.6,"2020":3.8,"2021":2.5,"2022":6.4},"Girls":{"2016":3.1,"2018":2,"2019":5.1,"2020":6.1,"2021":6.7,"2022":14.6}}},{"label":"Cannot go to places not allowed","sexes":{"All Children":{"2018":1.1,"2019":2.8},"Boys":{"2018":1.3,"2019":3.4},"Girls":{"2018":1,"2019":2.1}}}]}]},{"name":null,"indicators":[{"id":"i030","name":"Percentage of children who reported experiencing being physically hurt in the last six months","short":"Physically Hurt in Past 6 Months","button":"Physically Hurt in 6 Past Months","grouping":"Physically Hurt in Past 6 Months","type":"composition","unit":"percent","unitInferred":false,"sumType":"multiple","categories":[{"label":"Friends","sexes":{"All Children":{"2016":32.7,"2018":24.8,"2019":17.4,"2020":14.2,"2021":9.6}}},{"label":"Parent","sexes":{"All Children":{"2016":23.2,"2018":15.6,"2019":13.2,"2020":14.6}}},{"label":"Any adult","sexes":{"All Children":{"2016":16.7,"2018":9.8,"2019":8.1,"2020":8.1,"2021":3}}}]}]}],"count":10},{"name":"WASH","dim":"Safe and Sustainable Environment","color":"#00AEEF","deep":"#0682BC","families":[{"name":null,"indicators":[{"id":"i031","name":"Average number of times per day children wash hands with soap","short":"Times Children Wash Hands Daily","button":"Handwashing Frequency","grouping":"Average number of times per day children wash hands with soap","type":"simple","unit":"times/day","unitInferred":true,"series":{"All Children":{"2016":3.1,"2018":3.2,"2019":3.1,"2020":3,"2021":3.8},"Boys":{"2016":3,"2018":3.1,"2019":3,"2020":2.9,"2021":3.6},"Girls":{"2016":3.2,"2018":3.4,"2019":3.3,"2020":3.2,"2021":4.1}}}]},{"name":null,"indicators":[{"id":"i032","name":"Percentage of children with access to drinking water","short":"Access to Drinking Water","button":"Access to Drinking Water","grouping":"Children with access to drinking water (%)","type":"composition","unit":"percent","unitInferred":false,"sumType":"exclusive","categories":[{"label":"Piped into dwelling","sexes":{"All Children":{"2016":20.9,"2018":24.4,"2019":23.5,"2020":23.3,"2021":25.6}}},{"label":"Piped to yard/plot","sexes":{"All Children":{"2016":7.7,"2018":8.4,"2019":7.7,"2020":8,"2021":4.7}}},{"label":"Public tap/Standpipe","sexes":{"All Children":{"2016":10.2,"2018":8.7,"2019":7.6,"2020":5.2,"2021":4.3}}},{"label":"Tubewell or borehole","sexes":{"All Children":{"2016":13.8,"2018":12.5,"2019":14.1,"2020":8.1,"2021":10.8}}},{"label":"Dug well protected","sexes":{"All Children":{"2016":4.8,"2018":4.2,"2019":4.4,"2020":5,"2021":4.9}}},{"label":"Dug well semi protected","sexes":{"All Children":{"2016":1.2,"2018":1.1,"2019":1.3,"2020":0.9,"2021":0.3}}},{"label":"Dug well unprotected","sexes":{"All Children":{"2016":1.4,"2018":1.3,"2019":0.6,"2020":0.7,"2021":0.4}}},{"label":"Protected spring","sexes":{"All Children":{"2016":8.2,"2018":6.2,"2019":3,"2020":3.1,"2021":3.5}}},{"label":"Unprotected spring","sexes":{"All Children":{"2016":1.9,"2018":1.3,"2019":1.6,"2020":1.3,"2021":0.6}}},{"label":"Rainwater","sexes":{"All Children":{"2016":0.2,"2018":0.3,"2019":0.1,"2020":0.1,"2021":0.2}}},{"label":"Tanker truck","sexes":{"All Children":{"2016":0.8,"2018":0.5,"2019":0.3,"2020":0.3,"2021":0.2}}},{"label":"Cart with small tank","sexes":{"All Children":{"2016":0.04,"2018":0.01,"2019":0.1,"2020":0.2,"2021":0.2}}},{"label":"Surface water (River/Dam/Lake/Pond/Stream)","sexes":{"All Children":{"2016":0.2,"2018":0.3,"2019":0.4,"2020":0.1,"2021":0.1}}},{"label":"Bottled water/Refilling station","sexes":{"All Children":{"2016":28.5,"2018":30.7,"2019":34.7,"2020":43.6,"2021":43.8}}},{"label":"Water is bought from water vendor","sexes":{"All Children":{"2016":0.1,"2018":0.1,"2019":0,"2020":0,"2021":0}}}]}]},{"name":null,"indicators":[{"id":"i033","name":"Percentage of children who pay for water used for drinking","short":"Paying for Drinking Water","button":"Pay for Drinking Water","grouping":"Access to Drinking Water","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":62.6,"2018":64.3,"2019":66.6,"2020":73.6,"2021":71.9}}}]},{"name":null,"indicators":[{"id":"i034","name":"Percentage of children with no access to safe drinking water","short":"No Access to Safe Drinking Water","button":"No Safe Drinking Water","grouping":"No Access to Safe Drinking Water (%)","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":3.6,"2018":2.9,"2019":2.6,"2020":2.1,"2021":1}}}]},{"name":null,"indicators":[{"id":"i035","name":"Percentage of children with no access to sanitary toilet","short":"No Access to Sanitary Toilet","button":"No Sanitary Toilet","grouping":"Children with no access to sanitary toilet (%)","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":8.5,"2018":7.3,"2019":5.7,"2020":5.7,"2021":3.9}}}]}],"count":5},{"name":"Information","dim":"Civil and Participation Rights","color":"#7F3F98","deep":"#6A3180","families":[{"name":null,"indicators":[{"id":"i036","name":"Percentage of children who ever watched movies, videos on the internet or cellphone","short":"Watched Movies/Videos Online","button":"Watched Videos Online","grouping":"Video Watching","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":60.3,"2018":67.5,"2019":74.6,"2020":76.3},"Boys":{"2016":62.2,"2018":67.4,"2019":74.3,"2020":74},"Girls":{"2016":58.3,"2018":67.6,"2019":75,"2020":78.8}}}]},{"name":null,"indicators":[{"id":"i037","name":"Percentage of children who has tried chatting on the internet","short":"Has Tried Chatting Online","button":"Chatting Online","grouping":"Internet Chatting","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":31.8,"2018":53.7,"2019":68.8,"2020":82.2},"Boys":{"2016":32.5,"2018":51.9,"2019":65.7,"2020":80.7},"Girls":{"2016":31.1,"2018":55.6,"2019":72.1,"2020":83.7}}}]},{"name":null,"indicators":[{"id":"i038","name":"Percentage of children who have a facebook account","short":"Has Facebook Account","button":"Facebook Account","grouping":"Facebook Account","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":64.5,"2018":84.9,"2019":92.5,"2020":97.4,"2021":99},"Boys":{"2016":61.1,"2018":80,"2019":89.7,"2020":96.4,"2021":99},"Girls":{"2016":68.7,"2018":89.9,"2019":95.4,"2020":98.4,"2021":98.9}}}]},{"name":null,"indicators":[{"id":"i039","name":"Percentage of children who have an email account","short":"Has Email Account","button":"Email Account","grouping":"Email Account","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":61.4,"2018":66.2,"2019":68.3,"2020":78,"2021":54.8},"Boys":{"2016":59.5,"2018":66.1,"2019":67.3,"2020":77.2,"2021":51.4},"Girls":{"2016":63.8,"2018":66.3,"2019":69.3,"2020":78.8,"2021":58.5}}}]},{"name":null,"indicators":[{"id":"i040","name":"Percentage of children who have instagram account","short":"Has Instagram Account","button":"Instagram Account","grouping":"Instagram Account","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":3.7,"2018":9.9,"2019":11.2,"2020":0.2,"2021":41.3},"Boys":{"2016":3.7,"2018":6.7,"2019":5.5,"2020":0.4,"2021":27.7},"Girls":{"2016":3.9,"2018":13.2,"2019":17,"2020":0,"2021":55.5}}}]},{"name":null,"indicators":[{"id":"i041","name":"Percentage of children who have twitter account","short":"Has Twitter Account","button":"Twitter Account","grouping":"Twitter Account","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":3.7,"2018":4.9,"2019":6.5,"2020":19.7,"2021":15.6},"Boys":{"2016":2.1,"2018":3.9,"2019":3.7,"2020":12.2,"2021":9.5},"Girls":{"2016":5.8,"2018":6,"2019":9.3,"2020":27.4,"2021":22}}}]},{"name":null,"indicators":[{"id":"i042","name":"Percentage of children who own a cellphone","short":"Owns a Cellphone","button":"Owns a Cellphone","grouping":"Cellphone Ownership","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":17.3,"2018":28.2,"2019":37.1,"2020":48.1},"Boys":{"2016":16.2,"2018":24.4,"2019":33.5,"2020":46.1},"Girls":{"2016":18.5,"2018":32.2,"2019":41,"2020":50.2}}}]},{"name":null,"indicators":[{"id":"i043","name":"Percentage of children who reported using the internet","short":"Using the Internet","button":"Internet Usage","grouping":"Internet Access","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":41.4,"2018":56.9,"2019":75.7,"2020":85.8,"2021":90.4},"Boys":{"2016":44.2,"2018":56.3,"2019":73.7,"2020":83.6,"2021":87.5},"Girls":{"2016":38.4,"2018":57.6,"2019":77.9,"2020":88.1,"2021":93.6}}}]},{"name":null,"indicators":[{"id":"i044","name":"Percentage of children who usually chat with strangers","short":"Chats with Strangers","button":"Chats with Strangers","grouping":"Chat with Strangers","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":4.2,"2018":16.3,"2019":26.4,"2020":40.2},"Boys":{"2016":4.5,"2018":20.8,"2019":29.8,"2020":40.4},"Girls":{"2016":3.8,"2018":11.5,"2019":22.7,"2020":40.1}}}]},{"name":null,"indicators":[{"id":"i045","name":"Percentage of children who watched pornographic movies/videos","short":"Watched Pornographic Content","button":"Watched Pornography","grouping":"Pornography","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":17.9,"2018":10.1,"2019":9.7,"2020":11.1},"Boys":{"2016":20,"2018":14.2,"2019":13.8,"2020":15.1},"Girls":{"2016":15.5,"2018":5.7,"2019":5.3,"2020":6.7}}}]},{"name":null,"indicators":[{"id":"i046","name":"Percentage of children with internet connection at home","short":"Has Internet at Home","button":"Home Internet Access","grouping":"Internet Connection","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":10.2,"2018":27.4,"2019":64.7,"2020":71.3,"2021":77.5}}}]}],"count":11},{"name":"Child poverty","dim":"Equitable Life Opportunities","color":"#8DC63F","deep":"#5C8C1C","families":[{"name":null,"indicators":[{"id":"i047","name":"Average spending for children's school-related expenses in last school year","short":"School-Related Spending","button":"School-Related Spending","grouping":"School Spending","type":"composition","unit":"pesos","unitInferred":true,"sumType":"exclusive","categories":[{"label":"0- 1,000 pesos","sexes":{"All Children":{"2018":14.8,"2019":6.3,"2020":2.4,"2021":6.2}}},{"label":"1,001 to 5,000 pesos","sexes":{"All Children":{"2018":50.2,"2019":43.8,"2020":32.3,"2021":45.4}}},{"label":"5,001 to 10,000 pesos","sexes":{"All Children":{"2018":25.1,"2019":29,"2020":34.8,"2021":30.4}}},{"label":"10,001 to 20,000 pesos","sexes":{"All Children":{"2018":7.1,"2019":15.3,"2020":19.6,"2021":13}}},{"label":"20,001 to 30,000 pesos","sexes":{"All Children":{"2018":1.1,"2019":3.4,"2020":5.8,"2021":3.1}}},{"label":"30,001 to 40,000 pesos","sexes":{"All Children":{"2018":0.6,"2019":0.9,"2020":1.5,"2021":0.7}}},{"label":">40,001 pesos","sexes":{"All Children":{"2018":1,"2019":1.3,"2020":3.6,"2021":1.3}}}]}]},{"name":null,"indicators":[{"id":"i048","name":"Percentage of households reporting considerable difficulty in meeting expenses","short":"Difficulty in Meeting Expenses","button":"Difficulty Meeting Expenses","grouping":"Economic Difficulty","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":30.4,"2018":21.4,"2019":20.9,"2020":15.6,"2021":20.1}}}]},{"name":null,"indicators":[{"id":"i049","name":"Percentage of households that are 4Ps beneficiaries","short":"4Ps Beneficiaries","button":"4Ps Beneficiaries","grouping":"Economic Support","type":"simple","unit":"percent","unitInferred":false,"series":{"All Children":{"2016":46.8,"2018":48.6,"2019":47.7,"2020":43.3,"2021":48.1}}}]}],"count":3}]};
+/* CHILD_DATA_END */
+
+(function(){
+"use strict";
+const D = CHILD_DATA;
+const YEARS = D.years;                 // [{y,wave,age,provisional,t}]
+const YKEYS = YEARS.map(o=>o.y);
+const YMETA = Object.fromEntries(YEARS.map(o=>[o.y,o]));
+const COVID = D.covidYear;
+const CATPAL = ["#21409A","#EC7D30","#00A79D","#7F3F98","#00AEEF","#8DC63F","#C15E12","#b0177a","#4b5f69","#2e8b7f","#8a6d3b","#5a7d9a"];
+const SEXCOL = {"All Children":"var(--accent)","Boys":"#21409A","Girls":"#b0177a"};
+const NEUTRAL="#2b5c86", NEUTRAL_DEEP="#1f4664";
+
+const IND={}; const SECTOR={};
+D.sectors.forEach(s=>{ SECTOR[s.name]=s; s.families.forEach(f=>f.indicators.forEach(i=>{
+  IND[i.id]=Object.assign({},i,{sector:s.name,color:s.color,deep:s.deep,family:f.name});
+}));});
+const ALLIDS=Object.keys(IND);
+const SIMPLE_IDS=ALLIDS.filter(id=>IND[id].type==="simple");
+
+let activeSector=D.sectors[0].name;    // sector name or "ALL"
+let query="";
+let sel=[];                            // selected indicator ids (compare set)
+let sex="All Children";
+let view="chart";
+let hidden={};
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const isNum=v=>typeof v==="number"&&isFinite(v);
+const primary=()=>sel.length?IND[sel[0]]:null;
+const isCompare=()=>sel.length>=2;
+function unitLabel(u){return u==="percent"?"percent":u;}
+function fmt(v,u){
+  if(!isNum(v)) return v==null?"no data":String(v);
+  const s=Math.abs(v)>=1000?v.toLocaleString("en-PH",{maximumFractionDigits:0}):v.toLocaleString("en-PH",{maximumFractionDigits:2});
+  if(u==="percent")return s+"%"; if(u==="pesos")return "₱"+s; if(u==="times/day")return s+"/day"; return s;
+}
+function yLabel(o){return o.age!=null?("age "+o.age+(o.provisional?"*":"")):"";}
+
+/* ---------- cohort strip ---------- */
+function drawCohort(){
+  const W=1180,H=132,padL=30,padR=30;
+  const ts=YEARS.map(o=>o.t),t0=Math.min(...ts)-.6,t1=Math.max(...ts)+.6;
+  const X=t=>padL+(t-t0)/(t1-t0)*(W-padL-padR);
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Survey waves from ${YEARS[0].wave} in ${YEARS[0].y} to ${YEARS[YEARS.length-1].wave} in ${YEARS[YEARS.length-1].y}, one cohort followed as it ages, pandemic from 2020">`;
+  s+=`<line x1="${X(YEARS[0].t)}" y1="74" x2="${X(YEARS[YEARS.length-1].t)}" y2="74" stroke="#b7c6d1" stroke-width="2"/>`;
+  const xc=X(Number(COVID)+0.5);
+  s+=`<rect x="${xc}" y="26" width="${X(t1)-xc}" height="66" fill="#EC7D30" opacity=".06"/>`;
+  s+=`<line x1="${xc}" y1="26" x2="${xc}" y2="92" stroke="#EC7D30" stroke-width="1.5" stroke-dasharray="4 4"/>`;
+  s+=`<text x="${xc+6}" y="22" font-size="11" fill="#b0560f" font-weight="700">COVID-19 from 2020</text>`;
+  YEARS.forEach(o=>{
+    const x=X(o.t);
+    s+=`<circle cx="${x}" cy="74" r="8" fill="#fff" stroke="var(--accent)" stroke-width="2.5" ${o.provisional?'stroke-dasharray="3 2"':''}/>`;
+    s+=`<text x="${x}" y="46" text-anchor="middle" font-size="12.5" font-weight="700" fill="#10263a">${esc(o.y)}${o.provisional?'*':''}</text>`;
+    s+=`<text x="${x}" y="60" text-anchor="middle" font-size="11" fill="var(--accent)" font-weight="700">${esc(o.wave)}</text>`;
+    if(o.age!=null) s+=`<text x="${x}" y="100" text-anchor="middle" font-size="11" fill="#3d5366">${esc(yLabel(o))}</text>`;
+  });
+  s+=`</svg>`;
+  $("#cohortstrip").innerHTML=s;
+  const anyProv=YEARS.some(o=>o.provisional);
+  $("#cohortcap").innerHTML=`One panel of children interviewed each wave, from <strong>${esc(YEARS[0].wave)} (${esc(YEARS[0].y)})</strong> to <strong>${esc(YEARS[YEARS.length-1].wave)} (${esc(YEARS[YEARS.length-1].y)})</strong>, aging alongside the study. Gaps in a line mean the question was not fielded that wave.${anyProv?' <strong>*</strong> 2022 wave and age are provisional (not in the household file).':''}`;
+}
+
+/* ---------- sector band ---------- */
+function drawBand(){
+  let html=`<button type="button" class="stab all" role="tab" data-s="ALL" style="--sc:#5b6b78;--sd:#44525d" aria-selected="${activeSector==="ALL"}">
+    <span class="sn">All indicators</span><span class="sc">${SIMPLE_IDS.length} comparable</span></button>`;
+  html+=D.sectors.map(s=>`<button type="button" class="stab" role="tab" data-s="${esc(s.name)}" style="--sc:${s.color};--sd:${s.deep}" aria-selected="${activeSector===s.name}">
+    <span class="sn">${esc(s.name)}</span><span class="sc">${s.count} indicators</span></button>`).join("");
+  $("#sectorband").innerHTML=html;
+  $("#sectorband").querySelectorAll(".stab").forEach(b=>b.addEventListener("click",()=>{activeSector=b.dataset.s;drawBand();drawTree();}));
+}
+
+/* ---------- tree ---------- */
+function matchQ(i){
+  if(!query) return true;
+  const m=IND[i.id]||i, q=query.toLowerCase();
+  return (m.name||"").toLowerCase().includes(q)||(m.short||"").toLowerCase().includes(q)||(m.family||"").toLowerCase().includes(q)||(m.sector||"").toLowerCase().includes(q);
+}
+function lockUnit(){
+  if(!sel.length) return null;
+  const p=primary();
+  return p && p.type==="simple" ? p.unit : null; // compositions don't lock (they are single)
+}
+function drawTree(){
+  let html="", shown=0;
+  const lu=lockUnit();
+  const sectors=(query||activeSector==="ALL")?D.sectors:D.sectors.filter(s=>s.name===activeSector);
+  sectors.forEach(s=>{
+    let body="";
+    s.families.forEach(f=>{
+      const items=f.indicators.filter(matchQ);
+      if(!items.length) return;
+      shown+=items.length;
+      const rows=items.map(i=>{
+        const act=sel.includes(i.id);
+        const comp=i.type==="composition", mr=comp&&i.sumType==="multiple";
+        const checked=sel.includes(i.id)&&i.type==="simple";
+        const disabled=i.type==="simple" && lu && i.unit!==lu && !checked;
+        const ctrl=comp
+          ? `<span class="spacer" aria-hidden="true"></span>`
+          : `<input type="checkbox" data-mid="${i.id}" ${checked?"checked":""} ${disabled?`disabled title="Different unit (${esc(i.unit)}). Compare one unit at a time."`:""} aria-label="Add ${esc(i.name)} to the comparison">`;
+        return `<div class="irow" data-active="${act}">
+          ${ctrl}
+          <button type="button" class="iname" data-id="${i.id}">${esc(i.button||i.short)}</button>
+          ${comp?`<span class="itag ${mr?'mr':'comp'}" title="${mr?'Multiple-response breakdown (adds past 100%)':'Breakdown by category'}">${mr?'MULTI':'PARTS'}</span>`:""}
+        </div>`;
+      }).join("");
+      body+=f.name?`<div class="fam"><div class="famname">${esc(f.name)}</div>${rows}</div>`:`<div class="fam">${rows}</div>`;
+    });
+    if(body) html+=`<div class="tgroup"><h2><span class="dot" style="background:${s.color}"></span>${esc(s.name)}</h2>${body}</div>`;
+  });
+  $("#tree").innerHTML=html||`<p style="padding:.6rem;font-size:.88rem;color:var(--ink-soft)">No indicators match "${esc(query)}".</p>`;
+  const where=query?"matching your search":(activeSector==="ALL"?"across all sectors":"in "+esc(activeSector));
+  const cmp=isCompare()?` Comparing <strong>${sel.length}</strong>.`:"";
+  $("#status").innerHTML=`Showing <strong>${shown}</strong> indicator${shown===1?"":"s"} ${where}. Tick boxes to compare simple indicators.${cmp}`;
+  $("#tree").querySelectorAll(".iname").forEach(b=>b.addEventListener("click",()=>focusOne(b.dataset.id)));
+  $("#tree").querySelectorAll("input[data-mid]").forEach(cb=>cb.addEventListener("change",()=>toggle(cb.dataset.mid)));
+}
+
+/* ---------- selection ---------- */
+function applyAccent(){
+  const p=primary();
+  const deep = isCompare()||!p ? NEUTRAL_DEEP : p.deep;
+  document.documentElement.style.setProperty("--accent",deep);
+  $(".viz").style.setProperty("border-top-color", isCompare()||!p ? NEUTRAL : p.color);
+}
+function focusOne(id){
+  sel=[id]; hidden={};
+  const i=IND[id];
+  if(i.type==="composition"&&sex==="Compare") sex="All Children";
+  if(activeSector!=="ALL") activeSector=i.sector;
+  refreshAll();
+}
+function toggle(id){
+  if(!IND[id]||IND[id].type!=="simple") return;
+  if(primary()&&primary().type==="composition") sel=[];       // drop a focused composition
+  const k=sel.indexOf(id);
+  if(k>=0){ sel.splice(k,1); if(!sel.length) sel=[id]; }       // keep at least one
+  else sel.push(id);
+  hidden={};
+  if(isCompare()&&sex==="Compare") sex="All Children";
+  refreshAll();
+}
+function refreshAll(){ applyAccent(); drawBand(); drawTree(); refresh(); }
+
+/* ---------- drawable lines ---------- */
+function seriesFor(i,which){           // simple indicator -> points for a sex
+  if(i.type==="simple") return i.series[which]||i.series["All Children"];
+  if(i.headline&&i.headline[which]) return i.headline[which];
+  return null;
+}
+function lines(){
+  const p=primary(); if(!p) return [];
+  if(isCompare()){
+    return sel.map((id,idx)=>{
+      const i=IND[id], pts=seriesFor(i,sex)||{};
+      // prefer sector colour; if it collides with an earlier pick, fall back
+      let col=i.color;
+      return {key:id,label:i.short,full:i.name,color:col,points:pts,sector:i.sector};
+    }).map((L,idx,arr)=>{
+      const clash=arr.slice(0,idx).some(o=>o.color===L.color);
+      return clash?Object.assign(L,{color:CATPAL[idx%CATPAL.length]}):L;
+    }).filter(L=>Object.keys(L.points).length);
+  }
+  if(p.type==="simple"){
+    if(sex==="Compare"){
+      const out=[];
+      if(p.series["Boys"]) out.push({key:"Boys",label:"Boys",full:p.name,color:SEXCOL.Boys,points:p.series["Boys"]});
+      if(p.series["Girls"]) out.push({key:"Girls",label:"Girls",full:p.name,color:SEXCOL.Girls,points:p.series["Girls"]});
+      return out;
+    }
+    const pts=p.series[sex]||p.series["All Children"];
+    return pts?[{key:sex,label:sex,full:p.name,color:p.color,points:pts}]:[];
+  }
+  if(sex==="Compare"){                 // composition with one category isolated: boys vs girls on it
+    const vc=visibleCats();
+    if(vc.length===1){
+      const c=vc[0],out=[];
+      if(c.sexes.Boys) out.push({key:"Boys",label:c.label+" — boys",full:c.label+" (boys)",color:SEXCOL.Boys,points:c.sexes.Boys});
+      if(c.sexes.Girls) out.push({key:"Girls",label:c.label+" — girls",full:c.label+" (girls)",color:SEXCOL.Girls,points:c.sexes.Girls});
+      return out;
+    }
+  }
+  return p.categories.map((c,idx)=>({key:c.label,label:c.label,full:c.label,color:CATPAL[idx%CATPAL.length],points:c.sexes[sex]||c.sexes["All Children"]||{}})).filter(L=>Object.keys(L.points).length);
+}
+function visibleLines(){return lines().filter(L=>!hidden[L.key]);}
+function curUnit(){const p=primary();return p?p.unit:"percent";}
+/* which sexes a selection can actually show, and whether boys-vs-girls is meaningful */
+function sexAvail(which){
+  const p=primary(); if(!p) return true;
+  if(isCompare()) return true;                       // compare mode falls back per indicator
+  if(p.type==="simple") return which==="All Children" ? true : !!p.series[which];
+  return p.categories.some(c=>c.sexes[which]);       // composition: any category has it
+}
+function visibleCats(){                              // composition only: categories not hidden
+  const p=primary(); if(!p||p.type!=="composition") return [];
+  return p.categories.filter(c=>!hidden[c.label]&&Object.keys(c.sexes).length);
+}
+function compareAvail(){
+  const p=primary(); if(!p||isCompare()) return false;
+  if(p.type==="simple") return !!(p.series.Boys&&p.series.Girls);
+  const vc=visibleCats();                            // composition: exactly one category isolated
+  return vc.length===1 && vc[0].sexes.Boys && vc[0].sexes.Girls;
+}
+
+/* ---------- header, chips, notes ---------- */
+function drawHead(){
+  const p=primary();
+  if(!p){$("#vtitle").textContent="Select an indicator";$("#chipset").innerHTML="";$("#vnote").innerHTML="";return;}
+  if(isCompare()){
+    $("#vtitle").textContent="Comparing "+sel.length+" indicators";
+    $("#chipset").innerHTML=`<span class="minichip" style="background:${NEUTRAL};color:#fff;border:0">cross-sector</span><span class="minichip">${esc(unitLabel(p.unit))}</span><span class="minichip">${esc(sex==="Compare"?"all children":sex.toLowerCase())}</span>`;
+    $("#vnote").innerHTML="";
+    return;
+  }
+  $("#vtitle").textContent=p.name;
+  const chips=[`<span class="minichip sector" style="background:${p.deep}">${esc(p.sector)}</span>`,
+    `<span class="minichip">${esc(unitLabel(p.unit))}${p.unitInferred?" (inferred)":""}</span>`,
+    `<span class="minichip">${p.type==="composition"?"breakdown":"trend"}</span>`];
+  if(p.type==="composition"&&p.headline&&p.headline["All Children"]){
+    const pp=p.headline["All Children"]; let ly=null;
+    for(let k=YKEYS.length-1;k>=0;k--){ if(isNum(pp[YKEYS[k]])){ly=YKEYS[k];break;} }
+    if(ly) chips.push(`<span class="minichip" title="Overall rate before the breakdown below">overall ${esc(fmt(pp[ly],p.unit))} in ${esc(ly)}</span>`);
+  }
+  $("#chipset").innerHTML=chips.join("");
+  let note="";
+  if(p.type==="composition"&&p.sumType==="multiple") note+=`<div class="note"><strong>Multiple answers allowed.</strong> Children could give more than one reason, so these shares add past 100 percent. Read each line on its own, not as a slice of a pie.</div>`;
+  if(/anxiety|depression/i.test(p.name)) note+=`<div class="note mh"><strong>Self-reported screening.</strong> These are children's responses on a screening scale, not clinical diagnoses. Read "clinical" and "borderline" as flags for follow-up, not confirmed conditions.</div>`;
+  if(p.unitInferred) note+=`<div class="note">The source left the unit blank; it is shown as <strong>${esc(unitLabel(p.unit))}</strong>, inferred from the indicator name.</div>`;
+  if(YEARS.some(o=>o.provisional)) note+=`<div class="note prov"><strong>*</strong> The 2022 round's wave and age are provisional; they are not in the household study file.</div>`;
+  $("#vnote").innerHTML=note;
+}
+function headlineSeries(){
+  const p=primary();
+  if(p.type==="simple") return {pts:p.series["All Children"]||p.series[Object.keys(p.series)[0]],lbl:"all children"};
+  if(p.headline&&p.headline["All Children"]) return {pts:p.headline["All Children"],lbl:"the overall rate, all children"};
+  let best=null,bv=-1;
+  p.categories.forEach(c=>{const pp=c.sexes["All Children"]||{};for(let k=YKEYS.length-1;k>=0;k--){const v=pp[YKEYS[k]];if(isNum(v)){if(v>bv){bv=v;best={pts:pp,lbl:c.label+" (largest, all children)"};}break;}}});
+  return best||{pts:{},lbl:""};
+}
+function drawChips(){
+  if(isCompare()){
+    $("#chips").innerHTML=""; $("#chipcap").textContent="Comparing "+sel.length+" indicators for "+(sex==="Compare"?"all children":sex.toLowerCase())+". Each line is one indicator; see the legend and table for the numbers.";
+    return;
+  }
+  const p=primary(),hs=headlineSeries(),pts=hs.pts||{};
+  const have=YKEYS.filter(y=>isNum(pts[y]));
+  if(!have.length){$("#chips").innerHTML="";$("#chipcap").textContent="";return;}
+  const f=have[0],l=have[have.length-1],fv=pts[f],lv=pts[l];
+  const wv=y=>YMETA[y]?YMETA[y].wave:y;
+  let html=chip("First wave",fmt(fv,p.unit),wv(f)+", "+f)+chip("Latest",fmt(lv,p.unit),wv(l)+", "+l);
+  if(have.length>1){const d=lv-fv,t=(d>0?"+":"")+(p.unit==="percent"?d.toLocaleString("en-PH",{maximumFractionDigits:1})+" pp":fmt(d,p.unit));
+    html+=`<div class="chip"><span class="cl">Change</span><span class="cv">${esc(t)}</span><span class="cs">${esc(wv(f))} to ${esc(wv(l))}</span></div>`;}
+  $("#chips").innerHTML=html;
+  $("#chipcap").textContent="Following "+hs.lbl+". A rise is not automatically good or bad; read it against what the indicator measures.";
+  function chip(cl,cv,cs){return `<div class="chip"><span class="cl">${esc(cl)}</span><span class="cv">${esc(cv)}</span><span class="cs">${esc(cs)}</span></div>`;}
+}
+
+/* ---------- legend ---------- */
+function drawLegend(){
+  const L=lines();
+  $("#legend").innerHTML=L.map(l=>`<button type="button" class="li" data-k="${esc(l.key)}" aria-pressed="${!hidden[l.key]}" title="${esc(l.full)}"><span class="sw" style="background:${l.color}"></span>${esc(l.label)}</button>`).join("");
+  $("#legend").querySelectorAll(".li").forEach(b=>b.addEventListener("click",()=>{hidden[b.dataset.k]=!hidden[b.dataset.k];drawLegend();drawChart();syncSexSeg();drawHelp();}));
+}
+
+/* ---------- charts ---------- */
+function drawChart(){
+  if(view==="stack") return drawStacked();
+  const svg=$("#chart"),L=visibleLines(),unit=curUnit();
+  const W=940,H=440,mL=66,mR=20,mT=18,mB=84;
+  const ts=YEARS.map(o=>o.t),t0=Math.min(...ts)-.6,t1=Math.max(...ts)+.6;
+  const X=t=>mL+(t-t0)/(t1-t0)*(W-mL-mR);
+  let hi=-Infinity,lo=0;
+  L.forEach(l=>YKEYS.forEach(y=>{const v=l.points[y];if(isNum(v)){hi=Math.max(hi,v);lo=Math.min(lo,v);}}));
+  if(hi===-Infinity){svg.setAttribute("viewBox",`0 0 ${W} 80`);svg.innerHTML=`<text x="20" y="44" font-size="14" fill="#64788a">No data for this selection.</text>`;return;}
+  if(unit==="percent"&&hi<=100)hi=Math.min(100,hi*1.14+1);else hi*=1.14;
+  const Y=v=>mT+(1-(v-lo)/(hi-lo))*(H-mT-mB);
+  let s=`<rect x="0" y="0" width="${W}" height="${H}" fill="#ffffff"/>`;
+  const step=niceStep((hi-lo)/5);
+  for(let v=Math.ceil(lo/step)*step;v<=hi+1e-9;v+=step){
+    s+=`<line x1="${mL}" y1="${Y(v)}" x2="${W-mR}" y2="${Y(v)}" stroke="#e9eef2"/>`;
+    s+=`<text x="${mL-8}" y="${Y(v)+4}" text-anchor="end" font-size="12" fill="#64788a">${v.toLocaleString("en-PH",{maximumFractionDigits:2})}</text>`;
+  }
+  s+=`<text transform="translate(15 ${(mT+H-mB)/2}) rotate(-90)" text-anchor="middle" font-size="12" fill="#3d5366" font-weight="700">${esc(unitLabel(unit))}</text>`;
+  const xc=X(Number(COVID)+0.5);
+  s+=`<line x1="${xc}" y1="${mT}" x2="${xc}" y2="${H-mB}" stroke="#EC7D30" stroke-width="1.2" stroke-dasharray="4 4" opacity=".7"/>`;
+  s+=`<text x="${xc+4}" y="${mT+12}" font-size="10.5" fill="#b0560f" font-weight="700">2020</text>`;
+  YEARS.forEach(o=>{const x=X(o.t);
+    s+=`<line x1="${x}" y1="${H-mB}" x2="${x}" y2="${H-mB+5}" stroke="#b7c6d1"/>`;
+    s+=`<text x="${x}" y="${H-mB+20}" text-anchor="middle" font-size="12.5" font-weight="700" fill="#10263a">${esc(o.y)}${o.provisional?'*':''}</text>`;
+    s+=`<text x="${x}" y="${H-mB+34}" text-anchor="middle" font-size="11" fill="var(--accent)" font-weight="700">${esc(o.wave)}</text>`;
+    if(o.age!=null) s+=`<text x="${x}" y="${H-mB+48}" text-anchor="middle" font-size="10.5" fill="#64788a">${esc(yLabel(o))}</text>`;
+  });
+  s+=`<line x1="${mL}" y1="${H-mB}" x2="${W-mR}" y2="${H-mB}" stroke="#b7c6d1" stroke-width="1.5"/>`;
+  if(!isCompare()&&sex==="Compare"&&L.length===2){
+    const common=YEARS.filter(o=>isNum(L[0].points[o.y])&&isNum(L[1].points[o.y]));
+    if(common.length>1){
+      const top=common.map(o=>`${X(o.t)},${Y(L[0].points[o.y])}`);
+      const bot=common.slice().reverse().map(o=>`${X(o.t)},${Y(L[1].points[o.y])}`);
+      s+=`<polygon points="${top.join(" ")} ${bot.join(" ")}" fill="#7F3F98" opacity=".10"/>`;
+    }
+  }
+  const single=L.length===1;
+  L.forEach(l=>{
+    const have=YEARS.filter(o=>isNum(l.points[o.y]));
+    for(let k=1;k<have.length;k++){
+      const a=have[k-1],b=have[k];
+      const gap=YEARS.some(o=>o.t>a.t&&o.t<b.t&&!isNum(l.points[o.y]));
+      s+=`<line x1="${X(a.t)}" y1="${Y(l.points[a.y])}" x2="${X(b.t)}" y2="${Y(l.points[b.y])}" stroke="${l.color}" stroke-width="2.6" ${gap?'stroke-dasharray="6 5" opacity=".7"':""}/>`;
+    }
+    have.forEach(o=>{const v=l.points[o.y];const td=esc(JSON.stringify({k:l.key,y:o.y}));
+      s+=`<circle class="pt" tabindex="0" role="img" data-tip='${td}' cx="${X(o.t)}" cy="${Y(v)}" r="5.3" fill="#fff" stroke="${l.color}" stroke-width="2.6" aria-label="${esc(l.full)}, ${esc(o.wave)} ${esc(o.y)}${o.age!=null?", "+esc(yLabel(o)):""}: ${esc(fmt(v,unit))}"/>`;
+      if(single)s+=`<text x="${X(o.t)}" y="${Y(v)-11}" text-anchor="middle" font-size="11.5" font-weight="700" fill="${l.color}">${esc(fmt(v,unit))}</text>`;
+    });
+  });
+  svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+  svg.setAttribute("aria-label",(isCompare()?"Comparing "+sel.length+" indicators":primary().name)+", by survey wave. The table lists the same numbers.");
+  svg.innerHTML=s; wireTips();
+}
+function drawStacked(){
+  const svg=$("#chart"),p=primary(),unit=p.unit;
+  const vis=lines().filter(l=>!hidden[l.key]);
+  const W=940,H=440,mL=50,mR=20,mT=18,mB=84;
+  const years=YEARS.filter(o=>vis.some(l=>isNum(l.points[o.y])));
+  const gap=(W-mL-mR)/years.length,bw=gap*0.6;
+  const maxTot=Math.max(100,...years.map(o=>vis.reduce((a,l)=>a+(isNum(l.points[o.y])?l.points[o.y]:0),0)));
+  const Y=v=>mT+(1-v/maxTot)*(H-mT-mB);
+  let s=`<rect x="0" y="0" width="${W}" height="${H}" fill="#ffffff"/>`;
+  for(let v=0;v<=maxTot+1e-9;v+=niceStep(maxTot/5)){
+    s+=`<line x1="${mL}" y1="${Y(v)}" x2="${W-mR}" y2="${Y(v)}" stroke="#e9eef2"/>`;
+    s+=`<text x="${mL-8}" y="${Y(v)+4}" text-anchor="end" font-size="12" fill="#64788a">${Math.round(v)}</text>`;
+  }
+  years.forEach((o,yi)=>{const cx=mL+gap*yi+gap/2;let acc=0;
+    vis.forEach(l=>{const v=l.points[o.y];if(!isNum(v))return;const y0=Y(acc),y1=Y(acc+v);acc+=v;
+      s+=`<rect class="pt" tabindex="0" data-tip='${esc(JSON.stringify({k:l.key,y:o.y}))}' x="${cx-bw/2}" y="${y1}" width="${bw}" height="${Math.max(0,y0-y1)}" fill="${l.color}" opacity=".9" aria-label="${esc(l.label)}, ${esc(o.wave)} ${esc(o.y)}: ${esc(fmt(v,unit))}"/>`;});
+    s+=`<text x="${cx}" y="${H-mB+20}" text-anchor="middle" font-size="12.5" font-weight="700" fill="#10263a">${esc(o.y)}${o.provisional?'*':''}</text>`;
+    s+=`<text x="${cx}" y="${H-mB+34}" text-anchor="middle" font-size="11" fill="var(--accent)" font-weight="700">${esc(o.wave)}</text>`;
+    if(o.age!=null)s+=`<text x="${cx}" y="${H-mB+48}" text-anchor="middle" font-size="10.5" fill="#64788a">${esc(yLabel(o))}</text>`;
+  });
+  s+=`<line x1="${mL}" y1="${H-mB}" x2="${W-mR}" y2="${H-mB}" stroke="#b7c6d1" stroke-width="1.5"/>`;
+  svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+  svg.setAttribute("aria-label",p.name+", stacked composition by survey wave, "+sex.toLowerCase());
+  svg.innerHTML=s; wireTips();
+}
+function niceStep(raw){const p=Math.pow(10,Math.floor(Math.log10(raw)));for(const m of[1,2,2.5,5,10])if(m*p>=raw)return m*p;return 10*p;}
+
+/* ---------- tooltip ---------- */
+function wireTips(){
+  const tip=$("#tip");
+  document.querySelectorAll(".pt").forEach(el=>{
+    el.addEventListener("mousemove",e=>show(e.clientX,e.clientY,el));
+    el.addEventListener("mouseleave",hide);
+    el.addEventListener("focus",()=>{const r=el.getBoundingClientRect();show(r.left+r.width/2,r.top,el);});
+    el.addEventListener("blur",hide);
+  });
+  function show(x,y,el){
+    const d=JSON.parse(el.dataset.tip),o=YMETA[d.y],L=lines().find(l=>l.key===d.k);if(!L)return;
+    const v=L.points[d.y];
+    let h=`<b>${esc(L.full)}</b><br>${esc(o.wave)}, ${esc(o.y)}${o.age!=null?", "+esc(yLabel(o)):""}<br>${esc(isCompare()?(sex==="Compare"?"all children":sex.toLowerCase()):(primary().type==="simple"?(sex==="Compare"?L.label:sex.toLowerCase()):sex.toLowerCase()))}: <b>${esc(fmt(v,curUnit()))}</b>`;
+    tip.innerHTML=h;tip.style.display="block";
+    const tw=tip.offsetWidth,th=tip.offsetHeight;
+    tip.style.left=Math.min(x+14,innerWidth-tw-8)+"px";tip.style.top=Math.max(8,Math.min(y+14,innerHeight-th-8))+"px";
+  }
+  function hide(){tip.style.display="none";}
+}
+
+/* ---------- table ---------- */
+function drawTable(){
+  const L=lines(),unit=curUnit();
+  const head=`<tr><th>${isCompare()?"Indicator":(primary().type==="simple"?"Series":"Category")}</th>${YEARS.map(o=>`<th class="num">${esc(o.y)}${o.provisional?'*':''}<span class="wv">${esc(o.wave)}${o.age!=null?" · "+esc(yLabel(o)):""}</span></th>`).join("")}</tr>`;
+  $("#dtable thead").innerHTML=head;
+  $("#dtable tbody").innerHTML=L.map(l=>`<tr><td>${esc(l.full)}</td>${YEARS.map(o=>`<td class="num">${isNum(l.points[o.y])?esc(fmt(l.points[o.y],unit)):"—"}</td>`).join("")}</tr>`).join("")||`<tr><td colspan="${YEARS.length+1}">No data.</td></tr>`;
+}
+
+/* ---------- view tabs ---------- */
+function syncTabs(){
+  const p=primary();
+  const canStack=!isCompare()&&p&&p.type==="composition"&&p.sumType==="exclusive";
+  $("#tab-stack").hidden=!canStack;
+  if(view==="stack"&&!canStack) view="chart";
+  $("#tab-chart").setAttribute("aria-selected",view==="chart");
+  $("#tab-stack").setAttribute("aria-selected",view==="stack");
+  $("#tab-table").setAttribute("aria-selected",view==="table");
+  $("#view-chart").hidden=view==="table"; $("#view-table").hidden=view!=="table";
+  $("#tab-chart").textContent=(!isCompare()&&p&&p.type==="composition")?"Lines":"Trend";
+}
+$("#tab-chart").addEventListener("click",()=>{view="chart";refresh();});
+$("#tab-stack").addEventListener("click",()=>{view="stack";refresh();});
+$("#tab-table").addEventListener("click",()=>{view="table";refresh();});
+
+/* ---------- sex control ---------- */
+function syncSexSeg(){
+  const p=primary();
+  $("#sexseg").querySelectorAll("button").forEach(b=>{
+    const v=b.dataset.sex;
+    let disable=false, why="";
+    if(!p) disable=true;
+    else if(v==="Compare"){
+      disable=!compareAvail();
+      if(disable) why = isCompare() ? "Comparing several indicators already; boys vs girls works on a single indicator."
+        : (p.type==="composition" ? "Isolate one category first (hide the others in the legend) to compare boys and girls."
+        : "This indicator was only reported for all children, so there is no boys or girls split.");
+    } else if(v==="Boys"||v==="Girls"){
+      disable=!sexAvail(v);
+      if(disable) why="This indicator was only reported for all children.";
+    }
+    b.disabled=disable;
+    if(why) b.title=why; else b.removeAttribute("title");
+    b.setAttribute("aria-pressed",v===sex);
+  });
+}
+$("#sexseg").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{if(b.disabled)return;sex=b.dataset.sex;if(b.dataset.sex!=="Compare")hidden={};syncSexSeg();refresh();}));
+
+/* ---------- help ---------- */
+function drawHelp(){
+  const p=primary();let t;
+  if(isCompare()) t="Each line is one indicator, for "+(sex==="Compare"?"all children":sex.toLowerCase())+". Tick or untick indicators on the left; tap a legend item to hide a line. Dashed segments span a wave where the question was not asked.";
+  else if(p.type==="composition"&&sex==="Compare") t="Boys and girls for one category; the shaded band is the gap between them. Show more categories in the legend to go back to the full breakdown.";
+  else if(p.type==="composition") t="Each line is one category's share among "+(sex==="All Children"?"all children":sex.toLowerCase())+". "+(p.sumType==="multiple"?"Children could pick more than one, so lines add past 100 percent.":"Categories are mutually exclusive and add to about 100 percent; the Stacked tab shows them as one column per wave.")+" Tap a legend item to hide a line. To compare boys and girls for one category, hide the others, then choose Boys vs girls.";
+  else if(sex==="Compare") t="Boys and girls together; the shaded band is the gap between them. Faint dashing marks a skipped wave.";
+  else t="Points are keyboard focusable; the table lists the same numbers. Dashed segments span a wave where the question was not asked.";
+  $("#charthelp").textContent=t;
+}
+
+/* ---------- downloads ---------- */
+function downloadCSV(){
+  const L=lines(),unit=curUnit();
+  const rows=[["indicator","sector","type","unit","series_or_category","sex","wave","survey_year","index_age","value"]];
+  L.forEach(l=>{const sid=isCompare()?l.key:sel[0];const sec=IND[sid]?IND[sid].sector:"";const typ=IND[sid]?IND[sid].type:"";
+    YEARS.forEach(o=>rows.push([l.full,sec,typ,unit,(isCompare()?l.full:l.label),(sex==="Compare"?l.label:sex),o.wave,o.y,(o.age==null?"":o.age+(o.provisional?" (provisional)":"")),isNum(l.points[o.y])?l.points[o.y]:""]));});
+  const csv="﻿"+rows.map(r=>r.map(c=>{c=String(c);return /[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c;}).join(",")).join("\r\n");
+  dl(new Blob([csv],{type:"text/csv;charset=utf-8"}),fname()+".csv");
+}
+function chartSVGString(){
+  const src=$("#chart");
+  const vb=src.getAttribute("viewBox").split(/\s+/).map(Number);
+  const w=vb[2],h=vb[3];
+  const cs=getComputedStyle(document.documentElement);
+  const accent=cs.getPropertyValue("--accent").trim()||"#21409A";
+  // clone and resolve var(--accent) in inline fills/strokes
+  let inner=src.innerHTML.replace(/var\(--accent\)/g,accent);
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" font-family="Atkinson Hyperlegible, Arial, sans-serif"><rect width="${w}" height="${h}" fill="#ffffff"/>${inner}</svg>`;
+}
+function downloadSVG(){ dl(new Blob([chartSVGString()],{type:"image/svg+xml;charset=utf-8"}),fname()+".svg"); }
+function downloadPNG(){
+  const svg=chartSVGString();
+  const vb=$("#chart").getAttribute("viewBox").split(/\s+/).map(Number);
+  const scale=2,w=vb[2]*scale,h=vb[3]*scale;
+  const img=new Image();
+  const url=URL.createObjectURL(new Blob([svg],{type:"image/svg+xml;charset=utf-8"}));
+  img.onload=()=>{
+    const c=document.createElement("canvas");c.width=w;c.height=h;
+    const ctx=c.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,w,h);ctx.drawImage(img,0,0,w,h);
+    URL.revokeObjectURL(url);
+    c.toBlob(b=>{if(b)dl(b,fname()+".png");},"image/png");
+  };
+  img.onerror=()=>{URL.revokeObjectURL(url);alert("Could not render the PNG here; the SVG download always works.");};
+  img.src=url;
+}
+function fname(){
+  const base=isCompare()?("compare-"+sel.length+"-indicators"):primary().short.toLowerCase().replace(/[^a-z0-9]+/g,"-").slice(0,40);
+  return "lcsfc-"+base;
+}
+function dl(blob,name){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();}
+$("#dlcsv").addEventListener("click",downloadCSV);
+$("#dlchart").querySelectorAll("button[data-fmt]").forEach(b=>b.addEventListener("click",()=>{
+  $("#dlchart").removeAttribute("open");
+  if(view==="table"){view="chart";refresh();}
+  if(b.dataset.fmt==="png")downloadPNG();else downloadSVG();
+}));
+
+/* ---------- text size + fullscreen ---------- */
+document.querySelectorAll(".textsize button").forEach(b=>b.addEventListener("click",()=>{
+  document.documentElement.style.setProperty("--fs",b.dataset.fs+"px");
+  document.querySelectorAll(".textsize button").forEach(x=>x.setAttribute("aria-pressed",x===b));
+}));
+$("#fsbtn").addEventListener("click",()=>{
+  if(document.fullscreenElement||document.body.classList.contains("fsfallback")){
+    if(document.fullscreenElement)document.exitFullscreen();document.body.classList.remove("fsfallback");return;}
+  const el=document.documentElement;
+  if(el.requestFullscreen)el.requestFullscreen().catch(()=>document.body.classList.add("fsfallback"));else document.body.classList.add("fsfallback");
+});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")document.body.classList.remove("fsfallback");});
+$("#q").addEventListener("input",e=>{query=e.target.value.trim();drawTree();});
+
+/* ---------- refresh ---------- */
+function normalizeSex(){
+  if(!sel.length) return;
+  if(sex==="Compare"){ if(!compareAvail()) sex="All Children"; }
+  else if(!sexAvail(sex)) sex="All Children";
+}
+function refresh(){
+  $("#clearsel").hidden = sel.length===0;
+  if(!sel.length){
+    drawHead();
+    $("#chips").innerHTML=""; $("#chipcap").textContent="";
+    $("#legend").innerHTML=""; $("#charthelp").textContent="";
+    $("#chart").setAttribute("viewBox","0 0 940 120");
+    $("#chart").innerHTML=`<text x="24" y="60" font-size="15" fill="#64788a">Pick an indicator on the left, or tick several to compare.</text>`;
+    $("#dtable thead").innerHTML=""; $("#dtable tbody").innerHTML="";
+    return;
+  }
+  normalizeSex();
+  drawHead();drawChips();syncTabs();syncSexSeg();
+  if(view==="table")drawTable();
+  else{drawLegend();drawChart();drawHelp();}
+}
+$("#clearsel").addEventListener("click",()=>{sel=[];hidden={};sex="All Children";applyAccent();drawBand();drawTree();refresh();});
+
+/* ---------- boot ---------- */
+drawCohort();drawBand();
+$("#srcline").textContent="Source export: "+(D.meta.source_file||"")+" (LCSFC child-level). One workbook; one row per indicator, disaggregation, sex and survey year.";
+let start=ALLIDS.find(id=>/current state of happiness/i.test(IND[id].name))||ALLIDS[0];
+focusOne(start);
+})();
+</script>
+</body>
+</html>
